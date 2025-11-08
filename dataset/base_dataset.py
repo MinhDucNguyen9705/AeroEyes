@@ -1,16 +1,32 @@
 import os
-import random
-import glob
-import json
-import numpy as np
-from PIL import Image
-import decord
-import torch
-from torch.utils.data import Dataset
-import torchvision.transforms as T
-import torchvision.transforms.functional as F
-from data_utils import normalize_bbox, recover_bbox, bbox_torchTocv2, recover_boxes_to_original
+import pdb
 
+import tqdm
+import random
+import json
+
+import cv2
+import decord
+import numpy as np
+import torch
+import torch.nn.functional as F
+from PIL import Image
+from torch.utils.data import Dataset, get_worker_info
+from torchvision import transforms as T
+# from dataset import dataset_utils
+from dataset.dataset_utils import get_bbox_from_data, normalize_bbox, recover_bbox, bbox_torchTocv2
+from decord import VideoReader, cpu
+import glob
+
+split_files = {
+            'train': 'vq_train.json',
+            'val': 'vq_val.json',            # there is no test
+            'test': 'vq_test_unannotated.json'
+        }
+
+NORMALIZE_MEAN = [int(it*255) for it in [0.485, 0.456, 0.406]]
+NORMALIZE_STD = [int(it*255) for it in [0.229, 0.224, 0.225]]
+    
 class VisualQuery2DDataset(Dataset):
     def __init__(self, clip_params, query_params, data_paths, mode='train', transform=None):
         self.clip_params = clip_params
@@ -187,8 +203,6 @@ class VisualQuery2DDataset(Dataset):
 
         return results
 
-from decord import VideoReader, cpu
-
 class TestDataset(Dataset):
     def __init__(self, clip_params, query_params, video_paths, transform=None, pad_last=True):
         self.video_paths = video_paths
@@ -287,7 +301,7 @@ class TestDataset(Dataset):
 
 def sample_frames_balance(num_frames, frame_interval, sample, sampling='rand'):
     '''
-    sample clips with balanced negative and positive samples
+    sample clips with balanced negative and postive samples
     params:
         num_frames: total number of frames to sample
         query_frame: query time index
@@ -329,8 +343,24 @@ def sample_frames_balance(num_frames, frame_interval, sample, sampling='rand'):
         frame_idxs_pos = [anno_valid_idx_range[0] + start + it for it in range(num_frames)]
     return frame_idxs_pos
 
+
 decord.bridge.set_bridge("torch")
 
+# def read_frames_decord_balance(video_path, num_frames, frame_interval, sample, sampling='rand'):
+#     video_reader = decord.VideoReader(video_path, num_threads=1)
+#     vlen = len(video_reader)
+#     origin_fps = int(video_reader.get_avg_fps())
+#     gt_fps = int(sample['clip_fps'])
+#     down_rate = origin_fps // gt_fps
+#     query_frame = int(sample['query_frame'])
+#     frame_idxs = sample_frames_balance(num_frames, query_frame, frame_interval, sample, sampling)      # downsampled fps idxs, used to get bbox annotation
+#     before_query = torch.tensor(frame_idxs) < query_frame
+#     frame_idxs_origin = [min(it * down_rate, vlen - 1) for it in frame_idxs]        # origin clip fps frame idxs
+#     #video_reader.skip_frames(1)
+#     frames = video_reader.get_batch(frame_idxs_origin)
+#     frames = frames.float() / 255
+#     frames = frames.permute(0, 3, 1, 2)
+#     return frames, frame_idxs, before_query
 def read_frames_decord_balance(video_path, num_frames, frame_interval, sample, sampling='rand'):
     video_reader = decord.VideoReader(video_path, num_threads=1)
     vlen = len(video_reader)
@@ -347,44 +377,19 @@ def read_frames_decord_balance(video_path, num_frames, frame_interval, sample, s
     frames = frames.permute(0, 3, 1, 2)
     return frames, frame_idxs#, before_query
 
-def get_dataset(config, split='train'):
-    if split == 'train':
-        clip_num_frames = config.dataset.clip_num_frames
-        clip_reader = config.dataset.clip_reader
-        dataset_name = config.dataset.name
-    else:
-        clip_num_frames = config.dataset.clip_num_frames_val
-        clip_reader = config.dataset.clip_reader_val
-        dataset_name = config.dataset.name_val
 
-    query_params = {
-        'query_size': config.dataset.query_size,
-        'query_padding': config.dataset.query_padding,
-        'query_square': config.dataset.query_square,
-    }
-    clip_params = {
-        'fine_size': config.dataset.clip_size_fine,
-        'coarse_size': config.dataset.clip_size_coarse,
-        'clip_num_frames': clip_num_frames,
-        'sampling': config.dataset.clip_sampling,
-        'frame_interval': config.dataset.frame_interval,
-        'padding_value': config.dataset.padding_value
-    }
+def get_bbox_from_data(data):
+    # BoxMode.XYXY_ABS
+    return [data["x"], data["y"], data["x"] + data["width"], data["y"] + data["height"]]
 
-    if split == 'train' or split == 'val':
-        abs_dir = config.dataset.train_data_path if split == 'train' else config.dataset.val_data_path
-        data_paths = glob.glob(abs_dir+'/*')
-        data_paths = [p.replace('\\', '/') for p in data_paths]
-        # np.random.shuffle(data_paths)
-        train_paths = data_paths[:int(0.8*len(data_paths))]
-        val_paths = data_paths[int(0.8*len(data_paths)):]
-        if split == 'train':
-            dataset = VisualQuery2DDataset(clip_params, query_params, train_paths, mode=split)
-        else:
-            dataset = VisualQuery2DDataset(clip_params, query_params, val_paths, mode=split)
-    else:
-        abs_dir = config.dataset.test_data_path
-        video_paths = glob.glob(f'{abs_dir}/**/*.mp4', recursive=True)
-        dataset = TestDataset(clip_params, query_params, video_paths)
+def get_video_len(video_path):
+    cap = cv2.VideoCapture(video_path)
+    if not (cap.isOpened()):
+        return False
+    vlen = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    cap.release()
+    return vlen
 
-    return dataset
+video_reader_dict = {
+    'decord_balance': read_frames_decord_balance,
+}

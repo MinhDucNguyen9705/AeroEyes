@@ -4,8 +4,7 @@ import json
 import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from dataset import get_dataset
-from data_utils import recover_bbox, recover_boxes_to_original
+from dataset.dataset_utils import get_dataset, recover_bbox, recover_boxes_to_original
 from metrics import postprocess_results
 from collections import defaultdict
 
