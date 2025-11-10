@@ -255,9 +255,7 @@ class ClipMatcher(nn.Module):
                 clip_feats[:, i] = layer(clip_feats[:, i], query_feats[:, i])                                     # [b*t,n,c]
         # clip_feats = [rearrange(clip_feats[i], 'b (h w) c -> b c h w', h=h, w=w) for i in range(3)]      # [b*t,c,h,w]
         clip_feat = self.weighted_sum(clip_feats)                                                        # [b*t,n,c]
-        print(clip_feat.shape)
         clip_feat = rearrange(clip_feat, 'b (h w) c -> b c h w', h=h, w=w)                                # [b*t,c,h,w]
-        print(clip_feat.shape)
         # down-size features and find spatial-temporal correspondence
         for head in self.down_heads:
             clip_feat = head(clip_feat)

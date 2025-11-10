@@ -12,6 +12,7 @@ import numpy as np
 from dataset.dataset_utils import recover_bbox
 import wandb
 from metrics.utils import postprocess_results, calculate_iou
+from torch.utils.data import DataLoader, Subset
 
 def vis_pred_clip(sample, pred, iter_num, output_dir, subfolder='train'):
     output_dir = os.path.join(output_dir, 'visualization', subfolder)
@@ -140,18 +141,25 @@ def vis_pred_clip_inference(clips, queries, pred, save_path, iter_num):
         writer.append_data(cv2.imread(save_path + '_tmp.jpg')[...,::-1])
     writer.close()
 
-def visualization(model, dataloader, epoch, device):
+def visualization(model, dataloader, epoch, device, num_samples=2):
     
     model.eval()
-    batch = next(iter(dataloader))
+    dataset = dataloader.dataset
+    random_indices = torch.randperm(len(dataset))[:num_samples]
+    subset = torch.utils.data.Subset(dataset, random_indices)
+    
+    # new dataloader (no shuffle, since indices are already random)
+    random_loader = DataLoader(subset, batch_size=dataloader.batch_size, shuffle=False)
+    batch = next(iter(random_loader))
+    
+    # batch = dataset[random_idx]
 
     with torch.no_grad():
         clips = batch['clip'].to(device)
         queries = batch['query_images'].to(device)
         output = model(clips, queries, training=False, fix_backbone=True)
         final_output = postprocess_results(output)
-    
-    num_samples = 4
+        
     fig, ax = plt.subplots(num_samples, 2, figsize=(20, 20))
     num_frames = batch['clip'].shape[1]
 

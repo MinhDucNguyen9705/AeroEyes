@@ -7,8 +7,7 @@ import torch.nn.parallel
 import torch.optim
 import itertools
 import argparse
-from dataset.base_dataset import QueryVideoDataset, VisualQuery2DDataset, TestDataset
-from dataset.egotracks_dataset import EgoTracksDataset
+from dataset.base_dataset import VisualQuery2DDataset, TestDataset
 import kornia
 import kornia.augmentation as K
 from kornia.constants import DataKey

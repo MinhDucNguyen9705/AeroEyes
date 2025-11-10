@@ -13,8 +13,8 @@ import torch.nn.functional as F
 from PIL import Image
 from torch.utils.data import Dataset, get_worker_info
 from torchvision import transforms as T
-# from dataset import dataset_utils
-from dataset.dataset_utils import get_bbox_from_data, normalize_bbox, recover_bbox, bbox_torchTocv2
+from dataset import dataset_utils
+#from dataset.dataset_utils import normalize_bbox, recover_bbox, bbox_torchTocv2
 from decord import VideoReader, cpu
 import glob
 
@@ -96,7 +96,7 @@ class VisualQuery2DDataset(Dataset):
             if int(idx) in clip_bbox_all:
                 clip_with_bbox.append(True)
                 curr_bbox = torch.tensor(clip_bbox_all[int(idx)])
-                curr_bbox_normalize = normalize_bbox(curr_bbox, clip_h, clip_w)
+                curr_bbox_normalize = dataset_utils.normalize_bbox(curr_bbox, clip_h, clip_w)
                 clip_bbox.append(curr_bbox_normalize)
             else:
                 clip_with_bbox.append(False)
@@ -122,14 +122,14 @@ class VisualQuery2DDataset(Dataset):
         target_size = self.clip_params['fine_size']
 
         t, _, h, w = clip.shape
-        clip_bbox = recover_bbox(clip_bbox, h, w)
+        clip_bbox = dataset_utils.recover_bbox(clip_bbox, h, w)
 
         try:
             fg_idxs = torch.where(clip_with_bbox)[0].numpy().tolist()
             idx = random.choice(fg_idxs)
             frame = (clip[idx] * 255).permute(1,2,0).numpy().astype(np.uint8)
             frame = Image.fromarray(frame)
-            bbox = bbox_torchTocv2(clip_bbox[idx]).tolist()
+            bbox = dataset_utils.bbox_torchTocv2(clip_bbox[idx]).tolist()
             query = frame.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
             query_size = self.query_params['query_size']
             query = query.resize((query_size, query_size))
@@ -188,7 +188,7 @@ class VisualQuery2DDataset(Dataset):
 
         clip_with_bbox, clip_bbox = self._get_clip_bbox(sample, clip_idxs, clip_h, clip_w)
         # print(clip_with_bbox)
-        _, clip_bbox, clip_with_bbox, query, clip_h, clip_w = self._process_clip(clip, clip_bbox, clip_with_bbox)
+        clip, clip_bbox, clip_with_bbox, query, clip_h, clip_w = self._process_clip(clip, clip_bbox, clip_with_bbox)
         
         results = {
             'clip': clip,    # [B, num_frame, C, H, W]

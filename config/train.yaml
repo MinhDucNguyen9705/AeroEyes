@@ -82,5 +82,5 @@ train:
 
 # test config
 test:
-  batch_size: 2
+  batch_size: 4
   compute_metric: True
