@@ -28,12 +28,13 @@ NORMALIZE_MEAN = [int(it*255) for it in [0.485, 0.456, 0.406]]
 NORMALIZE_STD = [int(it*255) for it in [0.229, 0.224, 0.225]]
     
 class VisualQuery2DDataset(Dataset):
-    def __init__(self, clip_params, query_params, data_paths, mode='train', transform=None):
+    def __init__(self, clip_params, query_params, data_paths, mode='train', transform=None, is_clip=True):
         self.clip_params = clip_params
         self.query_params = query_params
         self.data_paths = data_paths
         self.reduced_data_paths = [path.split('/')[-1] for path in self.data_paths]
         self.mode = mode
+        self.is_clip = is_clip
         
         if transform is None:
             self.transform = T.Compose([
@@ -76,6 +77,7 @@ class VisualQuery2DDataset(Dataset):
                         'response_track': clip['bboxes'],
                         'response_track_valid_range': [frame_id_min, frame_id_max],
                         'object_title': video['video_id'].split('_')[0],
+                        'clip_fps': video.get('clip_fps', 0)
                     }
                     self.annotations.append(curr_anno)
         return self.annotations
@@ -167,7 +169,6 @@ class VisualQuery2DDataset(Dataset):
         # Load and return a sample
         sample = self.annotations[idx]
         data_path = os.path.join('/'.join(self.data_paths[0].split('/')[:-1]), sample['video_id'])
-        clip_path = self._get_clip_path(data_path)
         query_path = self._get_query_path(data_path)
         query_images = [Image.open(img_path).convert("RGB") for img_path in query_path]
         query_images = [self.transform(img) for img in query_images]
@@ -177,11 +178,26 @@ class VisualQuery2DDataset(Dataset):
         
         sample_method = self.clip_params['sampling']
 
-        clip, clip_idxs = read_frames_decord_balance(clip_path,
-                                                    self.clip_params['num_frames'],
-                                                    self.clip_params['frame_interval'],
-                                                    sample,
-                                                sampling=sample_method)
+        if self.is_clip:
+            clip_path = self._get_clip_path(data_path)
+            clip, clip_idxs = read_frames_decord_balance(clip_path,
+                                                        self.clip_params['num_frames'],
+                                                        self.clip_params['frame_interval'],
+                                                        sample,
+                                                        sampling=sample_method)
+        else:
+            clip_path = glob.glob(os.path.join(data_path, 'video/*.jpg')) + glob.glob(os.path.join(data_path, 'video/*.png')) + glob.glob(os.path.join(data_path, 'video/*.jpeg'))
+            clip_path.sort()
+            clip_idxs = sample_frames_balance(self.clip_params['num_frames'],
+                                            self.clip_params['frame_interval'], 
+                                            sample, 
+                                            sampling='rand')
+            clip_idxs = [min(it, len(clip_path)-1) for it in clip_idxs]
+            sample_clip_path = [clip_path[i] for i in clip_idxs]
+            clip = [Image.open(img_path).convert("RGB") for img_path in sample_clip_path]
+            clip = [T.ToTensor()(img) for img in clip]
+            clip = torch.stack(clip, dim=0)
+
         # print(clip_idxs)
         # print(sample['response_track'])
         clip_h, clip_w = clip.shape[-2], clip.shape[-1]
@@ -191,7 +207,7 @@ class VisualQuery2DDataset(Dataset):
         clip, clip_bbox, clip_with_bbox, query, clip_h, clip_w = self._process_clip(clip, clip_bbox, clip_with_bbox)
         
         results = {
-            'clip': clip,    # [B, num_frame, C, H, W]
+            'clip': clip,    # [num_frame, C, H, W]
             'clip_with_bbox': clip_with_bbox,
             'clip_bbox': clip_bbox.float(),
             'clip_idxs': torch.tensor(clip_idxs),
@@ -346,36 +362,19 @@ def sample_frames_balance(num_frames, frame_interval, sample, sampling='rand'):
 
 decord.bridge.set_bridge("torch")
 
-# def read_frames_decord_balance(video_path, num_frames, frame_interval, sample, sampling='rand'):
-#     video_reader = decord.VideoReader(video_path, num_threads=1)
-#     vlen = len(video_reader)
-#     origin_fps = int(video_reader.get_avg_fps())
-#     gt_fps = int(sample['clip_fps'])
-#     down_rate = origin_fps // gt_fps
-#     query_frame = int(sample['query_frame'])
-#     frame_idxs = sample_frames_balance(num_frames, query_frame, frame_interval, sample, sampling)      # downsampled fps idxs, used to get bbox annotation
-#     before_query = torch.tensor(frame_idxs) < query_frame
-#     frame_idxs_origin = [min(it * down_rate, vlen - 1) for it in frame_idxs]        # origin clip fps frame idxs
-#     #video_reader.skip_frames(1)
-#     frames = video_reader.get_batch(frame_idxs_origin)
-#     frames = frames.float() / 255
-#     frames = frames.permute(0, 3, 1, 2)
-#     return frames, frame_idxs, before_query
 def read_frames_decord_balance(video_path, num_frames, frame_interval, sample, sampling='rand'):
     video_reader = decord.VideoReader(video_path, num_threads=1)
     vlen = len(video_reader)
-    # origin_fps = int(video_reader.get_avg_fps())
-    # gt_fps = int(sample['clip_fps'])
-    # down_rate = origin_fps // gt_fps
-    # query_frame = int(sample['query_frame'])
+    origin_fps = int(video_reader.get_avg_fps())
+    gt_fps = int(sample.get('clip_fps', 0))
+    down_rate = origin_fps // gt_fps if gt_fps > 0 else 1
     frame_idxs = sample_frames_balance(num_frames, frame_interval, sample, sampling)      # downsampled fps idxs, used to get bbox annotation
-    # before_query = torch.tensor(frame_idxs) < query_frame
-    frame_idxs_origin = [min(it, vlen - 1) for it in frame_idxs]        # origin clip fps frame idxs
+    frame_idxs_origin = [min(it * down_rate, vlen - 1) for it in frame_idxs]        # origin clip fps frame idxs
     #video_reader.skip_frames(1)
     frames = video_reader.get_batch(frame_idxs_origin)
     frames = frames.float() / 255
     frames = frames.permute(0, 3, 1, 2)
-    return frames, frame_idxs#, before_query
+    return frames, frame_idxs
 
 
 def get_bbox_from_data(data):

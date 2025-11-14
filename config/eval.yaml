@@ -1,6 +1,6 @@
 exp_name: 'eval'
 exp_group: 'vq2d'
-output_dir: './output/'
+output_dir: './output_ego/'
 log_dir: './log'
 workers: 8
 print_freq: 100

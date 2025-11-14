@@ -8,7 +8,7 @@ config = edict()
 # experiment config
 config.exp_name = 'vq2d'
 config.exp_group = 'baseline'
-config.output_dir = './output/'
+config.output_dir = './output_ego/'
 config.log_dir = './log'
 config.workers = 8
 config.print_freq = 100
@@ -34,8 +34,9 @@ config.dataset.frame_interval = 5
 config.dataset.query_padding = False
 config.dataset.query_square = False
 config.dataset.padding_value = 'zero'
-config.dataset.train_dir = '/home/admin/train/samples'
-config.dataset.test_dir = '/home/admin/public_test/samples'
+config.dataset.train_dir = '/home/admin/aeroeyes/observing/train/samples'
+config.dataset.test_dir = '/home/admin/aeroeyes/public_test/public_test/samples'
+config.dataset.train_ego_dir = '/home/admin/train-ego4d/train_ego4d/samples'
 
 # model config
 config.model = edict()
@@ -59,18 +60,18 @@ config.loss.weight_bbox = 1.0
 config.loss.weight_bbox_center = 1.0
 config.loss.weight_bbox_hw = 1.0
 config.loss.weight_bbox_ratio = 1.0
-config.loss.weight_bbox_giou = 0.1
-config.loss.weight_prob = 1.0
+config.loss.weight_bbox_giou = 0.3
+config.loss.weight_prob = 100.0
 config.loss.prob_bce_weight = [0.05, 0.95]
 
 # training config
 config.train = edict()
 config.train.resume = False
-config.train.batch_size = 8
-config.train.total_iteration = 3600
-config.train.lr = 0.0001
+config.train.batch_size = 16
+config.train.total_iteration = 2100
+config.train.lr = 0.0003
 config.train.weight_decay = 0.0001
-config.train.schedular_warmup_iter = 240
+config.train.schedular_warmup_iter = 70
 config.train.schedualr_milestones = [15000, 30000, 45000]
 config.train.schedular_gamma = 0.3
 config.train.grad_max = 20.0

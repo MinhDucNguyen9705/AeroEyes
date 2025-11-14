@@ -9,10 +9,13 @@ import torch
 import torch.nn.functional as F
 from einops import rearrange
 import numpy as np
-from dataset.dataset_utils import recover_bbox
+from dataset.dataset_utils import process_data, recover_bbox, unnormalize
 import wandb
 from metrics.utils import postprocess_results, calculate_iou
 from torch.utils.data import DataLoader, Subset
+
+NORMALIZE_MEAN = [0.485, 0.456, 0.406]
+NORMALIZE_STD = [0.229, 0.224, 0.225]
 
 def vis_pred_clip(sample, pred, iter_num, output_dir, subfolder='train'):
     output_dir = os.path.join(output_dir, 'visualization', subfolder)
@@ -141,7 +144,7 @@ def vis_pred_clip_inference(clips, queries, pred, save_path, iter_num):
         writer.append_data(cv2.imread(save_path + '_tmp.jpg')[...,::-1])
     writer.close()
 
-def visualization(model, dataloader, epoch, device, num_samples=2):
+def visualization(config, model, dataloader, epoch, device, num_samples=2):
     
     model.eval()
     dataset = dataloader.dataset
@@ -151,6 +154,7 @@ def visualization(model, dataloader, epoch, device, num_samples=2):
     # new dataloader (no shuffle, since indices are already random)
     random_loader = DataLoader(subset, batch_size=dataloader.batch_size, shuffle=False)
     batch = next(iter(random_loader))
+    batch = process_data(config, batch, split='val', device=device)
     
     # batch = dataset[random_idx]
 
@@ -160,12 +164,13 @@ def visualization(model, dataloader, epoch, device, num_samples=2):
         output = model(clips, queries, training=False, fix_backbone=True)
         final_output = postprocess_results(output)
         
-    fig, ax = plt.subplots(num_samples, 2, figsize=(20, 20))
+    fig, ax = plt.subplots(num_samples, 5, figsize=(10, num_samples*3))
     num_frames = batch['clip'].shape[1]
 
     for i in range (num_samples):
         frame = np.random.randint(0, num_frames)
         clip = batch['clip'][i, frame].permute(1, 2, 0).cpu().numpy()
+        clip = unnormalize(clip, NORMALIZE_MEAN, NORMALIZE_STD)
         h, w, _ = clip.shape
         ax[i, 0].imshow(clip)
         ax[i, 0].axis('off')
@@ -187,7 +192,16 @@ def visualization(model, dataloader, epoch, device, num_samples=2):
             iou = 0.0
         ax[i, 1].axis('off')
         ax[i, 1].set_title(f'Predicted, IoU = {iou: .2f}')
+        ax[i, 2].imshow(unnormalize(batch['query_images'][i, 0].permute(1,2,0).cpu().numpy(), NORMALIZE_MEAN, NORMALIZE_STD))
+        ax[i, 2].axis('off')
+        ax[i, 2].set_title('Query Image 1')
+        ax[i, 3].imshow(unnormalize(batch['query_images'][i, 1].permute(1,2,0).cpu().numpy(), NORMALIZE_MEAN, NORMALIZE_STD))
+        ax[i, 3].axis('off')
+        ax[i, 3].set_title('Query Image 2')
+        ax[i, 4].imshow(unnormalize(batch['query_images'][i, 2].permute(1,2,0).cpu().numpy(), NORMALIZE_MEAN, NORMALIZE_STD))
+        ax[i, 4].axis('off')
+        ax[i, 4].set_title('Query Image 3')
     
     plt.tight_layout()
-    wandb.log({"Validation Predictions": wandb.Image(fig)}, step=epoch)
+    wandb.log({f"Epoch {epoch}": wandb.Image(fig)})
     plt.close(fig)

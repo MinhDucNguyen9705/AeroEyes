@@ -25,7 +25,7 @@ def train_epoch(config, loader, model, optimizer, schedular, scaler, epoch, outp
     
     train_utils.set_model_train(config, model, ddp)
     batch_end = time.time()
-    print(len(loader))
+    # print(len(loader))
     for batch_idx, sample in enumerate(loader):
         iter_num = batch_idx + len(loader) * epoch
 
@@ -44,6 +44,8 @@ def train_epoch(config, loader, model, optimizer, schedular, scaler, epoch, outp
                           training=True, fix_backbone=config.model.fix_backbone)
         else:
             preds = model(clips, queries, training=True, fix_backbone=config.model.fix_backbone)
+        final_output = postprocess_results(preds, 0.5)
+        st_iou = spatio_temporal_IoU(final_output, sample)
         time_meters.add_loss_value('Prediction time', time.time() - end)
         end = time.time()
 
@@ -82,23 +84,24 @@ def train_epoch(config, loader, model, optimizer, schedular, scaler, epoch, outp
         
 
         # visuallize prediction
-        if iter_num % config.vis_freq == 0 and rank == 0:
-            vis_utils.vis_pred_clip(sample=sample,
-                                    pred=preds_top,
-                                    iter_num=iter_num,
-                                    output_dir=output_dir,
-                                    subfolder='train')
-            vis_utils.vis_pred_scores(sample=sample,
-                                    pred=preds_top,
-                                    iter_num=iter_num,
-                                    output_dir=output_dir,
-                                    subfolder='train')
+        # if iter_num % config.vis_freq == 0 and rank == 0:
+        #     vis_utils.vis_pred_clip(sample=sample,
+        #                             pred=preds_top,
+        #                             iter_num=iter_num,
+        #                             output_dir=output_dir,
+        #                             subfolder='train')
+        #     vis_utils.vis_pred_scores(sample=sample,
+        #                             pred=preds_top,
+        #                             iter_num=iter_num,
+        #                             output_dir=output_dir,
+        #                             subfolder='train')
 
         batch_end = time.time()
 
         if rank == 0:
             wandb_log = {'Train/loss': total_loss.item(),
-                        'Train/lr': optimizer.param_groups[0]['lr']}
+                        'Train/lr': optimizer.param_groups[0]['lr'],
+                        'Train/STIoU': st_iou}
             for k, v in losses.items():
                 if 'loss' in k:
                     wandb_log['Train/{}'.format(k)] = v.item()
@@ -107,8 +110,6 @@ def train_epoch(config, loader, model, optimizer, schedular, scaler, epoch, outp
         dist.barrier()
         if batch_idx < 3:
             torch.cuda.empty_cache()
-
-
 
 def validate(config, loader, model, epoch, output_dir, device, rank, wandb_run=None, ddp=True):
     model.eval()
@@ -121,7 +122,7 @@ def validate(config, loader, model, epoch, output_dir, device, rank, wandb_run=N
             sample = exp_utils.dict_to_cuda(sample)
             sample = dataset_utils.process_data(config, sample, split='val', device=device)     # normalize and data augmentations on GPU
 
-            clips, queries = sample['clip'], sample['query']
+            clips, queries = sample['clip'], sample['query_images']
             if config.train.use_query_roi and 'query_frame' in sample.keys():
                 preds = model(clips, 
                             sample['query_frame'], 
@@ -143,17 +144,17 @@ def validate(config, loader, model, epoch, output_dir, device, rank, wandb_run=N
             except:
                 print(metrics, batch_idx, len(loader), len(loader))
 
-            if rank == 0: #batch_idx % config.eval_vis_freq == 0 and rank == 0:
-                vis_utils.vis_pred_clip(sample=sample,
-                                        pred=preds_top,
-                                        iter_num=batch_idx,
-                                        output_dir=output_dir,
-                                        subfolder='val')
-                vis_utils.vis_pred_scores(sample=sample,
-                                        pred=preds_top,
-                                        iter_num=batch_idx,
-                                        output_dir=output_dir,
-                                        subfolder='val')
+            # if rank == 0: #batch_idx % config.eval_vis_freq == 0 and rank == 0:
+            #     vis_utils.vis_pred_clip(sample=sample,
+            #                             pred=preds_top,
+            #                             iter_num=batch_idx,
+            #                             output_dir=output_dir,
+            #                             subfolder='val')
+            #     vis_utils.vis_pred_scores(sample=sample,
+            #                             pred=preds_top,
+            #                             iter_num=batch_idx,
+            #                             output_dir=output_dir,
+            #                             subfolder='val')
             dist.barrier()
             
     if rank == 0:

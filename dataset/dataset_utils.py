@@ -14,10 +14,13 @@ from kornia.constants import DataKey
 from einops import rearrange
 import glob
 from torchvision import transforms
+from torch.utils.data import ConcatDataset
 
 NORMALIZE_MEAN = [0.485, 0.456, 0.406]
 NORMALIZE_STD = [0.229, 0.224, 0.225]
 
+def unnormalize(img, mean, std):
+    return img * std + mean
 
 def get_dataset(config, split='train'):
     if split == 'train':
@@ -43,28 +46,40 @@ def get_dataset(config, split='train'):
         'padding_value': config.dataset.padding_value
     }
     dataset = None
-
+    
     train_dir = config.dataset.train_dir
     data_paths = glob.glob(train_dir+'/*')
+    data_paths.sort()
     data_paths = [p.replace('\\', '/') for p in data_paths]
     train_paths = data_paths[:12]
     val_paths = data_paths[12:]
+    print(val_paths)
 
     test_dir = config.dataset.test_dir
     video_paths = glob.glob(f'{test_dir}/**/*.mp4', recursive=True)
 
+    # train_ego_dir = config.dataset.train_ego_dir
+    # ego_data_paths = glob.glob(train_ego_dir+'/*')
+    # ego_data_paths = [p.replace('\\', '/') for p in ego_data_paths]
+    # train_ego_paths = ego_data_paths[:int(len(ego_data_paths)*0.95)]
+    # val_ego_paths = ego_data_paths[int(len(ego_data_paths)*0.95):]
+
     train_transform = transforms.Compose([
         transforms.Resize((query_params['query_size'], query_params['query_size'])),
         transforms.RandomRotation(30),
-        transforms.RandomHorizontalFlip(),
+        # transforms.RandomHorizontalFlip(),
         transforms.RandomVerticalFlip(),
         transforms.ToTensor()
     ])
 
     if split == 'train':
         dataset = VisualQuery2DDataset(clip_params, query_params, train_paths, mode=split, transform=train_transform)
+        # ego_dataset = VisualQuery2DDataset(clip_params, query_params, train_ego_paths, mode=split, transform=train_transform)
+        # dataset = ConcatDataset([dataset, ego_dataset])
     elif split == 'val':
-        dataset = VisualQuery2DDataset(clip_params, query_params, val_paths, mode=split, transform=train_transform)
+        dataset = VisualQuery2DDataset(clip_params, query_params, val_paths, mode=split, transform=None)
+        # ego_dataset = VisualQuery2DDataset(clip_params, query_params, train_ego_paths, mode=split, transform=None)
+        # dataset = ConcatDataset([dataset, ego_dataset])
     elif split == 'test':
         test_dir = config.dataset.test_dir
         video_paths = glob.glob(f'{test_dir}/**/*.mp4', recursive=True)
@@ -78,7 +93,7 @@ def process_data(config, sample, iter=0, split='train', device='cuda'):
         'clip': clip,                           # [B,T,3,H,W]
         'clip_with_bbox': clip_with_bbox,       # [B,T], binary value 0 / 1
         'clip_bbox': clip_bbox,                 # [B,T,4]
-        'query': query                          # [B,3,H2,W2]
+        'query_images': query_images            # [B,3,3,H2,W2]
     '''    
     B, T, _, H, W = sample['clip'].shape
     # B, _, H2, W2 = sample['query_images'][:,0].shape
@@ -136,7 +151,7 @@ def process_data(config, sample, iter=0, split='train', device='cuda'):
                 )
     
     clip = sample['clip']                           # [B,T,C,H,W]
-    query = sample['query_images']                        # [B,C,H',W'] [B, T, C, H', W']
+    query = sample['query_images']                        # [B,3,C,H',W']
     clip_with_bbox = sample['clip_with_bbox']       # [B,T]
     clip_bbox = sample['clip_bbox']                 # [B,T,4], with value range [0,1], torch axis
     clip_bbox = recover_bbox(clip_bbox, H, W)       # [B,T,4], with range in image pixels, torch axis
@@ -169,15 +184,7 @@ def process_data(config, sample, iter=0, split='train', device='cuda'):
     if split == 'train' and config.train.aug_query:
         # query = transform_query(query)
         query = torch.stack([transform_query(query[:, i]) for i in range(3)], dim=1)
-        sample['query'] = query.to(device)
-    
-    # augment the query frame
-    if split == 'train' and config.train.aug_query and 'query_frame' in sample.keys():
-        query_frame, query_frame_bbox = transform_query_frame(query)
-        sample['query_frame'] = query_frame.to(device)
-        query_frame_bbox = bbox_cv2Totorch(query_frame_bbox)
-        query_frame_bbox = normalize_bbox(query_frame_bbox, H, W).clamp(min=0.0, max=1.0)
-        sample['query_frame_bbox'] = query_frame_bbox.to(device).float()
+        sample['query_images'] = query.to(device)
 
     # normalize the input clips
     sample['clip_origin'] = sample['clip'].clone()
@@ -189,12 +196,7 @@ def process_data(config, sample, iter=0, split='train', device='cuda'):
     # sample['query_origin'] = sample['query_images'][:, 0].clone()
     sample['query_origin'] = sample['query_images'].clone()
     # sample['query'] = normalization(sample['query_images'][:, 0])
-    sample['query'] = torch.stack([normalization(sample['query_images'][:, i]) for i in range(3)], dim=1)
-
-    # normalize input query frame
-    if 'query_frame' in sample.keys():
-        sample['query_frame_origin'] = sample['query_frame'].clone()
-        sample['query_frame'] = normalization(sample['query_frame'])
+    sample['query_images'] = torch.stack([normalization(sample['query_images'][:, i]) for i in range(3)], dim=1)
 
     return sample
 

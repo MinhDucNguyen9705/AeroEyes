@@ -8,10 +8,12 @@ from dataset.dataset_utils import get_dataset, recover_bbox, recover_boxes_to_or
 from metrics import postprocess_results
 from collections import defaultdict
 
-def inference(config, model, output_path):
+def inference(model, test_path, output_path):
+    # Discover videos
+    video_paths = glob.glob(f'{test_path}/**/*.mp4', recursive=True)
 
     # Dataset / loader
-    test_dataset = get_dataset(config, split='test')
+    test_dataset = TestDataset(clip_params, query_params, video_paths)
     test_loader = DataLoader(test_dataset, batch_size=4, shuffle=False)
 
     # Results structure and per-video running state
@@ -44,6 +46,7 @@ def inference(config, model, output_path):
 
     with torch.no_grad():
         for batch in tqdm(test_loader):
+            batch = process_data(config, batch, split='val', device=device)
             clips = batch['clip'].to(device, non_blocking=True)
             queries = batch['query_images'].to(device, non_blocking=True)
 

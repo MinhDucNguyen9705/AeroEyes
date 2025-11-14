@@ -12,7 +12,7 @@ import torchvision
 from dataset import dataset_utils
 from model.mae import vit_base_patch16
 
-base_sizes=torch.tensor([[16, 16], [32, 32], [64, 64], [128, 128]], dtype=torch.float32)    # 4 types of size
+base_sizes=torch.tensor([[12, 12], [18, 18], [24, 24], [32, 32]], dtype=torch.float32)    # 4 types of size
 aspect_ratios=torch.tensor([0.5, 1, 2], dtype=torch.float32)                                # 3 types of aspect ratio
 n_base_sizes = base_sizes.shape[0]
 n_aspect_ratios = aspect_ratios.shape[0]
@@ -68,7 +68,9 @@ class ClipMatcher(nn.Module):
         self.resolution_anchor_feat = config.model.resolution_anchor_feat
 
         self.anchors_xyhw = generate_anchor_boxes_on_regions(image_size=[self.clip_size_coarse, self.clip_size_coarse],
-                                                        num_regions=[self.resolution_anchor_feat, self.resolution_anchor_feat])
+                                                        num_regions=[self.resolution_anchor_feat, self.resolution_anchor_feat],
+                                                        base_sizes=base_sizes,
+                                                        aspect_ratios=aspect_ratios)
         self.anchors_xyhw = self.anchors_xyhw / self.clip_size_coarse   # [R^2*N*M,4], value range [0,1], represented by [c_x,c_y,h,w] in torch axis
         self.anchors_xyxy = bbox_xyhwToxyxy(self.anchors_xyhw)
 

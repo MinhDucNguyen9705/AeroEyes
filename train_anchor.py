@@ -38,7 +38,7 @@ def parse_args():
 
 
 def main():
-    wandb.login(key="5d9a1c92ef21d246169785ef01b2df570df00cfd")  # sẽ lấy từ biến môi trường
+    wandb.login(key="a1d9c87a2f1add8decdef22e51ec34a785f78115")  # sẽ lấy từ biến môi trường
     # Get args and config
     args = parse_args()
     logger, output_dir, tb_log_dir = exp_utils.create_logger(config, args.cfg, phase='train')
@@ -106,6 +106,18 @@ def main():
             print('LR after resume {}'.format(optimizer.param_groups[0]['lr']))
         except:
             print('Resume failed')
+    else:
+        if os.path.exists(config.model.cpt_path):
+            checkpoint = torch.load(config.model.cpt_path, map_location=device)
+            state_dict = checkpoint["state_dict"]
+            missing_states = set(model.state_dict().keys()) - set(state_dict.keys())
+            if len(missing_states) > 0:
+                warnings.warn("Missing keys ! : {}".format(missing_states))
+            model.load_state_dict(state_dict, strict=True)
+            print('Load weights succesfully')
+        else:
+            print('No checkpoint found')
+            
 
     # distributed training
     ddp = False
@@ -209,7 +221,7 @@ def main():
                         'best_prob': best_prob,
                     }, 
                     checkpoint=output_dir, filename="cpt_best_prob.pth.tar")
-            visualization(model, val_loader, epoch+1, device)
+            visualization(config, model, val_loader, epoch+1, device, num_samples=4)
 
             logger.info('Rank {}, best iou: {} (current {}), best probability accuracy: {} (current {})'.format(local_rank, best_iou, iou, best_prob, prob))
         dist.barrier()
