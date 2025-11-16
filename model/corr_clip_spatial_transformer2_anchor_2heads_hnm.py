@@ -12,7 +12,7 @@ import torchvision
 from dataset import dataset_utils
 from model.mae import vit_base_patch16
 
-base_sizes=torch.tensor([[8, 8], [16, 16], [24, 24], [32, 32]], dtype=torch.float32)    # 4 types of size
+base_sizes=torch.tensor([[12, 12], [18, 18], [24, 24], [32, 32]], dtype=torch.float32)    # 4 types of size
 aspect_ratios=torch.tensor([0.5, 1, 2], dtype=torch.float32)                                # 3 types of aspect ratio
 n_base_sizes = base_sizes.shape[0]
 n_aspect_ratios = aspect_ratios.shape[0]

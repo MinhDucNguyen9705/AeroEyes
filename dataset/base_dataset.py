@@ -379,7 +379,7 @@ def sample_frames_balance(num_frames, frame_interval, sample, sampling='rand'):
     else:
         num_addition = anno_len - required_len
         start = random.choice(range(num_addition))
-        frame_idxs_pos = [anno_valid_idx_range[0] + start + it for it in range(num_frames)]
+        frame_idxs_pos = [anno_valid_idx_range[0] + start + it * frame_interval for it in range(num_frames)]
     return frame_idxs_pos
 
 decord.bridge.set_bridge("torch")

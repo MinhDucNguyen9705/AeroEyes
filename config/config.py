@@ -71,7 +71,7 @@ config.train.batch_size = 16
 config.train.total_iteration = 2100
 config.train.lr = 0.0003
 config.train.weight_decay = 0.005
-config.train.schedular_warmup_iter = 30
+config.train.schedular_warmup_iter = 60
 config.train.schedualr_milestones = [15000, 30000, 45000]
 config.train.schedular_gamma = 0.3
 config.train.grad_max = 20.0
@@ -100,7 +100,7 @@ config.train.use_query_roi = False
 
 # test config
 config.test = edict()
-config.test.batch_size = 4
+config.test.batch_size = 2
 config.test.compute_metric = True
 config.test.fg_threshold = 0.5
 

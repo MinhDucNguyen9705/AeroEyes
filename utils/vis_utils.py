@@ -191,7 +191,7 @@ def visualization(config, model, dataloader, epoch, device, num_samples=2):
             rect = plt.Rectangle((bbox[1], bbox[0]), (bbox[3]-bbox[1]), (bbox[2]-bbox[0]), linewidth=1, edgecolor='r', facecolor='none')
             ax[i, 1].add_patch(rect)
         if batch['clip_with_bbox'][batch_idx[i], frame] == 1 and final_output['clip_with_bbox'][batch_idx[i], frame] == 1:
-            iou = calculate_iou(batch['clip_bbox'][batch_idx[i], frame], final_output['bbox'][i, frame])
+            iou = calculate_iou(batch['clip_bbox'][batch_idx[i], frame], final_output['bbox'][batch_idx[i], frame])
         else:
             iou = 0.0
         ax[i, 1].axis('off')
