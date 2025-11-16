@@ -225,15 +225,10 @@ def val_performance(config, preds, gts, prob_theta=0.5):
     prob_accuracy_3 = ((torch.sigmoid(pred_prob) > 0.7) == gt_prob.bool()).float().mean()
     prob_accuracy_4 = ((torch.sigmoid(pred_prob) > 0.65) == gt_prob.bool()).float().mean()
 
-    prob_pred = (torch.sigmoid(pred_prob) > prob_theta).float()
-    true_positive = (prob_pred * gt_prob).sum()
-    false_positive = (prob_pred * (1 - gt_prob)).sum()
-    false_negative = ((1 - prob_pred) * gt_prob).sum()
+    precision_5, recall_5, f1_score_5 = calculate_confusion_matrix(pred_prob, gt_prob, prob_theta=0.5)
+    precision_4, recall_4, f1_score_4 = calculate_confusion_matrix(pred_prob, gt_prob, prob_theta=0.4)
+    precision_3, recall_3, f1_score_3 = calculate_confusion_matrix(pred_prob, gt_prob, prob_theta=0.3)
 
-    precision = true_positive / (true_positive + false_positive + 1e-8)
-    recall = true_positive / (true_positive + false_negative + 1e-8)
-    f1_score = 2 * (precision * recall) / (precision + recall + 1e-8)
-    
     loss = {
         # losses
         'loss_bbox_center': loss_center.item(),
@@ -248,9 +243,15 @@ def val_performance(config, preds, gts, prob_theta=0.5):
         'prob_accuracy_0.6': prob_accuracy_2.item(),
         'prob_accuracy_0.7': prob_accuracy_3.item(),
         'prob_accuracy_0.65': prob_accuracy_4.item(),
-        'precision': precision.item(),
-        'recall': recall.item(),
-        'f1_score': f1_score.item(),
+        'precision_0.5': precision_5.item(),
+        'recall_0.5': recall_5.item(),
+        'f1_score_0.5': f1_score_5.item(),
+        'precision_0.4': precision_4.item(),
+        'recall_0.4': recall_4.item(),
+        'f1_score_0.4': f1_score_4.item(),
+        'precision_0.3': precision_3.item(),
+        'recall_0.3': recall_3.item(),
+        'f1_score_0.3': f1_score_3.item(),
         'st_iou': st_iou,
     }
 
@@ -266,9 +267,23 @@ def val_performance(config, preds, gts, prob_theta=0.5):
     print("Mean IoU:", iou_vals.mean().item())
     print("Max IoU:", iou_vals.max().item())
 
+    test_final_output = postprocess_results(preds, 0.1)
+    test_st_iou = spatio_temporal_IoU(test_final_output, gts)
+    print("ST IoU at 0.1 threshold:", test_st_iou)
+
     return loss, pred_top
 
+def calculate_confusion_matrix(pred_prob, gt_prob, prob_theta=0.5):
+    prob_pred = (torch.sigmoid(pred_prob) > prob_theta).float()
+    true_positive = (prob_pred * gt_prob).sum()
+    false_positive = (prob_pred * (1 - gt_prob)).sum()
+    false_negative = ((1 - prob_pred) * gt_prob).sum()
 
+    precision = true_positive / (true_positive + false_positive + 1e-8)
+    recall = true_positive / (true_positive + false_negative + 1e-8)
+    f1_score = 2 * (precision * recall) / (precision + recall + 1e-8)
+
+    return precision, recall, f1_score
 
 # output = model(batch['clip'].to(device), batch['query_images'].to(device), training=False, fix_backbone=True)
 # final_output = postprocess_results(output, 0.3)
