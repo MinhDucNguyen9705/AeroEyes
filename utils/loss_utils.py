@@ -22,6 +22,7 @@ def get_losses_with_anchor(config, preds, gts):
         pred_prob_refine = preds['prob_refine']     # [b,t]            
     b,t,N = pred_prob.shape 
     device = pred_prob.device
+    print('Batch size: ', b)
 
     if 'center' not in gts.keys():
         gts['center'] = (gts['clip_bbox'][...,:2] + gts['clip_bbox'][...,2:]) / 2.0
@@ -44,8 +45,8 @@ def get_losses_with_anchor(config, preds, gts):
     else:
         positive = torch.zeros(b,t,N).reshape(-1).bool().to(device)
 
-    if torch.sum(positive.float()).item() == 0:   
-        positive[:1] = True
+    # if torch.sum(positive.float()).item() == 0:   
+    #     positive[:1] = True
     loss_mask = positive.float().unsqueeze(1)                                    # [b*t*N,1]
 
     # anchor box regression loss
@@ -135,6 +136,8 @@ def get_losses_with_anchor(config, preds, gts):
             'prob_anchor': rearrange(pred_prob_top, '(b t) -> b t', b=b, t=t),
             'prob': rearrange(pred_prob_refine, '(b t) -> b t', b=b, t=t)
         }
+    print("max prob:", torch.sigmoid(pred_top['prob']).max().item())
+    print("mean prob:", torch.sigmoid(pred_top['prob']).mean().item())
 
     return loss, pred_top, gts
 
@@ -316,7 +319,7 @@ def focal_loss(inputs, targets, alpha=0.25, gamma=2.0):
     return F_loss.mean()
 
 
-def BCELogitsLoss_with_HNM(pred_prob, gt_prob, positive, gt_before_query, weight):
+def BCELogitsLoss_with_HNM(pred_prob, gt_prob, positive, weight):
     '''
     pred_prob: predicted probability of anchors, in shape [b,t,N], without sigmoid
     gt_prob: GT probability of frames, in shape [b,t]
@@ -336,18 +339,17 @@ def BCELogitsLoss_with_HNM(pred_prob, gt_prob, positive, gt_before_query, weight
     BCE_loss = rearrange(BCE_loss, '(b t N) -> b t N', b=b, t=t)
     positive = rearrange(positive, '(b t N) -> b t N', b=b, t=t)
 
-    loss = HardNegMining(pred_prob, gt_prob, positive, BCE_loss, gt_before_query, weight)
+    loss = HardNegMining(pred_prob, gt_prob, positive, BCE_loss, weight)
     return loss.mean()
 
 
-def HardNegMining(pred_prob, gt_prob, positive, BCE_loss, gt_before_query, weight, ratio_neg_pos=3., ratio_hard=0.05):
+def HardNegMining(pred_prob, gt_prob, positive, BCE_loss, weight, ratio_neg_pos=3., ratio_hard=0.05):
     '''
     Perform frame-level hard negative mining
     Params:
         ratio_neg_pos: negative / positive ratio
         ratio_hard: ratio of negatives from all anchors if no positive anchor is assigned
         pred_prob, gt_prob, positive, BCE_loss in [b,t,N]
-        gt_before_query: in [b,t]
         weight: weights for positive and negative predictions
     Mine the anchor boxes with three type:
         1. query object doesn't occur and no anchor is assigned as positive
@@ -362,11 +364,9 @@ def HardNegMining(pred_prob, gt_prob, positive, BCE_loss, gt_before_query, weigh
     for i in range(b_real):
         # get results for each visual query
         query_idx = [(i + j * b_real) for j in range(b_real)]       # corresponds to how we generate cross-video data
-
-        cur_gt_before_query = gt_before_query[query_idx].bool()     # [b_real, t]
         
-        cur_positive = positive[query_idx][cur_gt_before_query]     # [M], for all valid anchor box of the query (reject unreliable ones after query time)
-        cur_loss = BCE_loss[query_idx][cur_gt_before_query]         # [M]
+        cur_positive = positive[query_idx]                          # [M], for all valid anchor box of the query (reject unreliable ones after query time)
+        cur_loss = BCE_loss[query_idx]                              # [M]
         M = cur_loss.shape[0]
 
         num_pos = int(torch.sum(cur_positive).item())

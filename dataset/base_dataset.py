@@ -52,9 +52,13 @@ class VisualQuery2DDataset(Dataset):
         if self.mode == 'train' or self.mode == 'val':
             self.annotations_path = os.path.join(self.data_paths[0].split('/samples')[0], 'annotations/annotations.json')
             self.annotations = self._read_annotations(self.annotations_path)
-            self.response_track = {anno['video_id']: [] for anno in self.annotations}
-            for anno in self.annotations:
-                self.response_track[anno['video_id']] += anno['response_track']
+            if self.mode == 'val':
+                self.annotations = self.annotations * 4
+            else:
+                self.annotations = self.annotations * 2
+            # self.response_track = {anno['video_id']: [] for anno in self.annotations}
+            # for anno in self.annotations:
+            #     self.response_track[anno['video_id']] += anno['response_track']
         else:
             self.annotations = None
 
@@ -77,16 +81,26 @@ class VisualQuery2DDataset(Dataset):
                         'response_track': clip['bboxes'],
                         'response_track_valid_range': [frame_id_min, frame_id_max],
                         'object_title': video['video_id'].split('_')[0],
-                        'clip_fps': video.get('clip_fps', 0)
+                        'clip_fps': video.get('clip_fps', 25)
                     }
                     self.annotations.append(curr_anno)
+        new_annotations = {}
+        for anno in self.annotations:
+            if anno['video_id'] not in new_annotations:
+                new_annotations[anno['video_id']] = anno
+                new_annotations[anno['video_id']]['response_track_valid_range'] = [anno['response_track_valid_range']]
+            else:
+                new_annotations[anno['video_id']]['response_track'] += anno['response_track']
+                new_annotations[anno['video_id']]['response_track_valid_range'].append(anno['response_track_valid_range'])
+        # print(new_annotations)
+        self.annotations = list(new_annotations.values())
         return self.annotations
 
     def _get_clip_bbox(self, sample, clip_idxs, clip_h, clip_w):
         
         clip_with_bbox, clip_bbox = [], []
-        # response_track = sample['response_track']
-        response_track = self.response_track[sample['video_id']]
+        response_track = sample['response_track']
+        # response_track = self.response_track[sample['video_id']]
         clip_bbox_all = {}
         
         for it in response_track:
@@ -180,6 +194,13 @@ class VisualQuery2DDataset(Dataset):
 
         if self.is_clip:
             clip_path = self._get_clip_path(data_path)
+            # if self.mode == 'train':
+            #     clip, clip_idxs = read_frames_decord_random(clip_path,
+            #                                                 self.clip_params['num_frames'],
+            #                                                 self.clip_params['frame_interval'],
+            #                                                 sample,
+            #                                                 self.response_track[sample['video_id']])
+            # else:
             clip, clip_idxs = read_frames_decord_balance(clip_path,
                                                         self.clip_params['num_frames'],
                                                         self.clip_params['frame_interval'],
@@ -207,6 +228,7 @@ class VisualQuery2DDataset(Dataset):
         clip, clip_bbox, clip_with_bbox, query, clip_h, clip_w = self._process_clip(clip, clip_bbox, clip_with_bbox)
         
         results = {
+            'object_title': sample['object_title'],
             'clip': clip,    # [num_frame, C, H, W]
             'clip_with_bbox': clip_with_bbox,
             'clip_bbox': clip_bbox.float(),
@@ -317,7 +339,7 @@ class TestDataset(Dataset):
 
 def sample_frames_balance(num_frames, frame_interval, sample, sampling='rand'):
     '''
-    sample clips with balanced negative and postive samples
+    sample clips with balanced negative and positive samples
     params:
         num_frames: total number of frames to sample
         query_frame: query time index
@@ -328,7 +350,8 @@ def sample_frames_balance(num_frames, frame_interval, sample, sampling='rand'):
         frame_idxs: length [num_frames]
     '''
     required_len = (num_frames - 1) * frame_interval + 1
-    anno_valid_idx_range = sample["response_track_valid_range"]
+    valid_idx = np.random.choice(range(len(sample["response_track_valid_range"])))
+    anno_valid_idx_range = sample["response_track_valid_range"][valid_idx]
     anno_len = anno_valid_idx_range[1] - anno_valid_idx_range[0] + 1
     
     if anno_len <= required_len:
@@ -359,14 +382,13 @@ def sample_frames_balance(num_frames, frame_interval, sample, sampling='rand'):
         frame_idxs_pos = [anno_valid_idx_range[0] + start + it for it in range(num_frames)]
     return frame_idxs_pos
 
-
 decord.bridge.set_bridge("torch")
 
 def read_frames_decord_balance(video_path, num_frames, frame_interval, sample, sampling='rand'):
     video_reader = decord.VideoReader(video_path, num_threads=1)
     vlen = len(video_reader)
     origin_fps = int(video_reader.get_avg_fps())
-    gt_fps = int(sample.get('clip_fps', 0))
+    gt_fps = int(sample.get('clip_fps', 25))
     down_rate = origin_fps // gt_fps if gt_fps > 0 else 1
     frame_idxs = sample_frames_balance(num_frames, frame_interval, sample, sampling)      # downsampled fps idxs, used to get bbox annotation
     frame_idxs_origin = [min(it * down_rate, vlen - 1) for it in frame_idxs]        # origin clip fps frame idxs

@@ -224,6 +224,15 @@ def val_performance(config, preds, gts, prob_theta=0.5):
     prob_accuracy_2 = ((torch.sigmoid(pred_prob) > 0.6) == gt_prob.bool()).float().mean()
     prob_accuracy_3 = ((torch.sigmoid(pred_prob) > 0.7) == gt_prob.bool()).float().mean()
     prob_accuracy_4 = ((torch.sigmoid(pred_prob) > 0.65) == gt_prob.bool()).float().mean()
+
+    prob_pred = (torch.sigmoid(pred_prob) > prob_theta).float()
+    true_positive = (prob_pred * gt_prob).sum()
+    false_positive = (prob_pred * (1 - gt_prob)).sum()
+    false_negative = ((1 - prob_pred) * gt_prob).sum()
+
+    precision = true_positive / (true_positive + false_positive + 1e-8)
+    recall = true_positive / (true_positive + false_negative + 1e-8)
+    f1_score = 2 * (precision * recall) / (precision + recall + 1e-8)
     
     loss = {
         # losses
@@ -239,7 +248,10 @@ def val_performance(config, preds, gts, prob_theta=0.5):
         'prob_accuracy_0.6': prob_accuracy_2.item(),
         'prob_accuracy_0.7': prob_accuracy_3.item(),
         'prob_accuracy_0.65': prob_accuracy_4.item(),
-        'st_iou': st_iou
+        'precision': precision.item(),
+        'recall': recall.item(),
+        'f1_score': f1_score.item(),
+        'st_iou': st_iou,
     }
 
     # get top prediction
@@ -249,6 +261,10 @@ def val_performance(config, preds, gts, prob_theta=0.5):
         'bbox': pred_bbox,
         'prob': pred_prob
     }
+    iou_vals, _, _ = GiouLoss(pred_top['bbox'].reshape(-1,4),
+                           gts['clip_bbox'].reshape(-1,4))
+    print("Mean IoU:", iou_vals.mean().item())
+    print("Max IoU:", iou_vals.max().item())
 
     return loss, pred_top
 

@@ -52,7 +52,7 @@ def get_dataset(config, split='train'):
     data_paths.sort()
     data_paths = [p.replace('\\', '/') for p in data_paths]
     train_paths = data_paths[:12]
-    val_paths = data_paths[12:]
+    val_paths = data_paths[11:]
     print(val_paths)
 
     test_dir = config.dataset.test_dir
@@ -61,6 +61,9 @@ def get_dataset(config, split='train'):
     # train_ego_dir = config.dataset.train_ego_dir
     # ego_data_paths = glob.glob(train_ego_dir+'/*')
     # ego_data_paths = [p.replace('\\', '/') for p in ego_data_paths]
+    # valid_objects = ['active_spray_cleanser_0', 'bag_0', 'bag_2', 'bag_3', 'belt_0', 'black_purse_0', 'bottle_1', 'bottle_2', 'bottle_4', 'bottle_5', 'bottle_6', 'bottle_7', 'bowl_0', 'bowl_2', 'box_1', 'broom_0', 'brush_0', 'bucket_0', 'ceramic_plate_0', 'chair_0', 'chopping_sticks_0', 'cloth_0', 'combination_spanner_0', 'condenser_0', 'container_0', 'container_1', 'cooking_pan_0', 'cooking_pot_0', 'cooking_pot_1', 'cordless_driver_0', 'cup_1', 'cup_2', 'diesel_bottle_0', 'disposal_cup_0', 'double_end_ring_spanner_0', 'drill_0', 'drum_stick_0', 'dustbin_0', 'dustpan_0', 'engine_0', 'exercise_mat_0', 'fan_0', 'fun_0', 'game_pad_0', 'globe_0', 'glue_bottle_0', 'green_hat_0', 'guitar_0', 'hex_key_0', 'jerrycan_0', 'kettle_0', 'kitchen_towel_0', 'kitchen_towel_1', 'knife_0', 'knife_1', 'ladder_0', 'lawn_mower_0', 'lid_0', 'lighter_0', 'litter_bin_0', 'mask_0', 'mat_0', 'mobile_phone_0', 'nut_cracker_0', 'paint_can_0', 'paper_towel_0', 'paper_towel_roll_0', 'phone_1', 'phone_10', 'phone_3', 'phone_5', 'phone_6', 'phone_8', 'phone_9', 'plastic_jar_0', 'plastic_ladle_0', 'point_of_sale_0', 'rice_cooker_0', 'rice_cooker_1', 'rope_0', 'sandpaper_0', 'seat_0', 'sellotape_0', 'smartphone_0', 'soap_0', 'spade_0', 'spatula_0', 'speaker_0', 'sponge_0', 'spray_bottle_0', 'stool_2', 'sunglasses_0', 'telephone_0', 'tightening_nut_0', 'tin_0', 'torch_0', 'wall_pouch_0', 'water_bottle_1', 'white_bucket_0', 'wood_0', 'wrench_0']
+
+    # train_ego_paths = [path for path in ego_data_paths if path.split('/')[-1] in valid_objects]
     # train_ego_paths = ego_data_paths[:int(len(ego_data_paths)*0.95)]
     # val_ego_paths = ego_data_paths[int(len(ego_data_paths)*0.95):]
 
@@ -132,21 +135,10 @@ def process_data(config, sample, iter=0, split='train', device='cuda'):
                 K.RandomHorizontalFlip(p=prob_flip),
                 K.RandomResizedCrop((query_size, query_size), scale=(crop_sacle, 1.0), ratio=(crop_ratio_min, crop_ratio_max), p=prob_crop),
                 # K.RandomAffine(affine_degree, [affine_translate, affine_translate], [affine_scale_min, affine_scale_max], 
-                #                 [affine_shear_min, affine_shear_max], p=prob_affine
+                #                 [affine_shear_min, affine_shear_max], p=prob_affine),
                 # K.RandomAffine(affine_degree, [0, 0], [1.0, 1.0], 
                 #                 [1.0, 1.0], p=prob_affine),
                 data_keys=["input"],  # Just to define the future input here.
-                same_on_batch=False,
-                )
-    
-    transform_query_frame = K.AugmentationSequential(
-                K.ColorJitter(brightness, contrast, saturation, hue=0, p=prob_color),
-                K.RandomHorizontalFlip(p=prob_flip),
-                # K.RandomAffine(affine_degree, [affine_translate, affine_translate], [affine_scale_min, affine_scale_max], 
-                #                 [affine_shear_min, affine_shear_max], p=prob_affine
-                # K.RandomAffine(affine_degree, [0, 0], [1.0, 1.0], 
-                #                 [1.0, 1.0], p=prob_affine),
-                data_keys=[DataKey.INPUT, DataKey.BBOX_XYXY],  # Just to define the future input here.
                 same_on_batch=False,
                 )
     
@@ -204,73 +196,65 @@ def process_data(config, sample, iter=0, split='train', device='cuda'):
 def replicate_sample_for_hnm(gts):
     '''
         gts = {
+            'object_title':        list of length b
             'clip':                 in [b,t,c,h,w]
-            'clip_rigin':           in [b,t,c,h,w]
             'clip_with_bbox':       in [b,t]
-            'before_query':         in [b,t]
+            'clip_idxs':            in [b,t]
             'clip_bbox':            in [b,t,4]
-            'query':                in [b,c,h,w]
-            'query_origin':         in [b,c,h,w]
+            'query_images':         in [b,3,c,h,w]
             'clip_h':               in [b]
             'clip_w':               in [b]
         }
     '''
+    object_titles = gts['object_title']
     clip = gts['clip']
-    clip_origin = gts['clip_origin']
     clip_with_bbox = gts['clip_with_bbox']
-    before_query = gts['before_query']
+    clip_idxs = gts['clip_idxs']
     clip_bbox = gts['clip_bbox']
-    query = gts['query']
-    query_origin = gts['query_origin']
+    query_images = gts['query_images']
     clip_h, clip_w = gts['clip_h'], gts['clip_w']
 
     b, t = clip.shape[:2]
     device = clip.device
 
+    new_object_titles = []
     new_clip = []
-    new_clip_origin = []
     new_clip_with_bbox = []
-    new_before_query = []
+    new_clip_idxs = []
     new_clip_bbox = []
-    new_query = []
-    new_query_origin = []
+    new_query_images = []
     new_clip_h, new_clip_w = [], []
 
     for i in range(b):
         for j in range(b):
             new_clip.append(clip[i])
-            new_clip_origin.append(clip_origin[i])
-            new_query.append(query[j])
-            new_query_origin.append(query_origin[j])
-            if i == j:
+            new_query_images.append(query_images[j])
+            new_object_titles.append(object_titles[i])
+            new_clip_idxs.append(clip_idxs[i])
+            if i == j or object_titles[i] == object_titles[j]:
                 new_clip_with_bbox.append(clip_with_bbox[i])
-                new_before_query.append(before_query[i])
                 new_clip_bbox.append(clip_bbox[i])
             else:
                 new_clip_with_bbox.append(torch.zeros(t).float().to(device))
-                new_before_query.append(torch.ones(t).bool().to(device))
                 new_clip_bbox.append(torch.tensor([[0.0, 0.0, 0.0001, 0.0001]]).repeat(t,1).float().to(device))
             new_clip_h.append(clip_h[i])
             new_clip_w.append(clip_w[i])
     
     new_clip = torch.stack(new_clip)
-    new_clip_origin = torch.stack(new_clip_origin)
     new_clip_with_bbox = torch.stack(new_clip_with_bbox)
-    new_before_query = torch.stack(new_before_query)
     new_clip_bbox = torch.stack(new_clip_bbox)
+    new_clip_idxs = torch.stack(new_clip_idxs)
     new_clip_h = torch.stack(new_clip_h)
     new_clip_w = torch.stack(new_clip_w)
-    new_query = torch.stack(new_query)
-    new_query_origin = torch.stack(new_query_origin)
-
+    new_query_images = torch.stack(new_query_images)
+    
     new_gts = {
+            'object_title': new_object_titles,
             'clip': new_clip,                       # in [b^2,t,c,h,w]
-            'clip_origin': new_clip_origin,         # in [b^2,t,c,h,w]
             'clip_with_bbox': new_clip_with_bbox,   # in [b^2,t]
-            'before_query': new_before_query,       # in [b^2,t]
+            'clip_idxs': new_clip_idxs,             # in [b^2,t]
             'clip_bbox': new_clip_bbox,             # in [b^2,t,4]
-            'query': new_query,                     # in [b^2,c,h,w]
-            'query_origin': new_query_origin,       # in [b^2,c,h,w]
+            'query_images': new_query_images,       # in [b^2,c,h,w]
             'clip_h': new_clip_h,                   # in [b^2]
             'clip_w': new_clip_w,                   # in [b^2]
         }

@@ -50,18 +50,18 @@ config.model.resolution_transformer = 1
 config.model.resolution_anchor_feat = 1
 config.model.pe_transformer = 'sinusoidal'
 config.model.window_transformer = 10
-config.model.positive_threshold = 0.2
+config.model.positive_threshold = 0.3
 config.model.positive_topk = 5
 config.model.cpt_path = ''
 
 # loss config
 config.loss = edict()
-config.loss.weight_bbox = 1.0
-config.loss.weight_bbox_center = 1.0
-config.loss.weight_bbox_hw = 1.0
+config.loss.weight_bbox = 5.0
+config.loss.weight_bbox_center = 5.0
+config.loss.weight_bbox_hw = 5.0
 config.loss.weight_bbox_ratio = 1.0
-config.loss.weight_bbox_giou = 0.3
-config.loss.weight_prob = 100.0
+config.loss.weight_bbox_giou = 2.0
+config.loss.weight_prob = 1.0
 config.loss.prob_bce_weight = [0.05, 0.95]
 
 # training config
@@ -70,8 +70,8 @@ config.train.resume = False
 config.train.batch_size = 16
 config.train.total_iteration = 2100
 config.train.lr = 0.0003
-config.train.weight_decay = 0.0001
-config.train.schedular_warmup_iter = 70
+config.train.weight_decay = 0.005
+config.train.schedular_warmup_iter = 30
 config.train.schedualr_milestones = [15000, 30000, 45000]
 config.train.schedular_gamma = 0.3
 config.train.grad_max = 20.0
@@ -95,7 +95,7 @@ config.train.aug_prob_color = 0.2
 config.train.aug_prob_flip = 0.2
 config.train.aug_prob_crop = 0.2
 config.train.aug_prob_affine = 0.2
-config.train.use_hnm = False
+config.train.use_hnm = True
 config.train.use_query_roi = False
 
 # test config

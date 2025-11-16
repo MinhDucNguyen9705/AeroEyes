@@ -145,7 +145,8 @@ def vis_pred_clip_inference(clips, queries, pred, save_path, iter_num):
     writer.close()
 
 def visualization(config, model, dataloader, epoch, device, num_samples=2):
-    
+
+    num_samples = min(dataloader.batch_size, num_samples)
     model.eval()
     dataset = dataloader.dataset
     random_indices = torch.randperm(len(dataset))[:num_samples]
@@ -154,6 +155,7 @@ def visualization(config, model, dataloader, epoch, device, num_samples=2):
     # new dataloader (no shuffle, since indices are already random)
     random_loader = DataLoader(subset, batch_size=dataloader.batch_size, shuffle=False)
     batch = next(iter(random_loader))
+    batch = dataset_utils.replicate_sample_for_hnm(batch)
     batch = process_data(config, batch, split='val', device=device)
     
     # batch = dataset[random_idx]
@@ -166,39 +168,41 @@ def visualization(config, model, dataloader, epoch, device, num_samples=2):
         
     fig, ax = plt.subplots(num_samples, 5, figsize=(10, num_samples*3))
     num_frames = batch['clip'].shape[1]
+    batch_idx = np.random.choice(batch['clip'].shape[0], num_samples, replace=False)
 
     for i in range (num_samples):
         frame = np.random.randint(0, num_frames)
-        clip = batch['clip'][i, frame].permute(1, 2, 0).cpu().numpy()
+        clip = batch['clip'][batch_idx[i], frame].permute(1, 2, 0).cpu().numpy()
         clip = unnormalize(clip, NORMALIZE_MEAN, NORMALIZE_STD)
         h, w, _ = clip.shape
         ax[i, 0].imshow(clip)
         ax[i, 0].axis('off')
-        if batch['clip_with_bbox'][i, frame] == 1:
-            gt_bbox = batch['clip_bbox'][i, frame]
+        ax[i, 0].set_title(f"{batch['object_title'][batch_idx[i]]}")
+        if batch['clip_with_bbox'][batch_idx[i], frame] == 1:
+            gt_bbox = batch['clip_bbox'][batch_idx[i], frame]
             gt_bbox = recover_bbox(gt_bbox, h, w)
             rect = plt.Rectangle((gt_bbox[1], gt_bbox[0]), (gt_bbox[3]-gt_bbox[1]), (gt_bbox[2]-gt_bbox[0]), linewidth=1, edgecolor='r', facecolor='none')
             ax[i, 0].add_patch(rect)
         ax[i, 0].set_title('GT')
         ax[i, 1].imshow(clip)
-        if final_output['clip_with_bbox'][i, frame] == 1:
-            bbox = final_output['bbox'][i, frame]
+        if final_output['clip_with_bbox'][batch_idx[i], frame] == 1:
+            bbox = final_output['bbox'][batch_idx[i], frame]
             bbox = recover_bbox(bbox, h, w)
             rect = plt.Rectangle((bbox[1], bbox[0]), (bbox[3]-bbox[1]), (bbox[2]-bbox[0]), linewidth=1, edgecolor='r', facecolor='none')
             ax[i, 1].add_patch(rect)
-        if batch['clip_with_bbox'][i, frame] == 1 and final_output['clip_with_bbox'][i, frame] == 1:
-            iou = calculate_iou(batch['clip_bbox'][i, frame], final_output['bbox'][i, frame])
+        if batch['clip_with_bbox'][batch_idx[i], frame] == 1 and final_output['clip_with_bbox'][batch_idx[i], frame] == 1:
+            iou = calculate_iou(batch['clip_bbox'][batch_idx[i], frame], final_output['bbox'][i, frame])
         else:
             iou = 0.0
         ax[i, 1].axis('off')
         ax[i, 1].set_title(f'Predicted, IoU = {iou: .2f}')
-        ax[i, 2].imshow(unnormalize(batch['query_images'][i, 0].permute(1,2,0).cpu().numpy(), NORMALIZE_MEAN, NORMALIZE_STD))
+        ax[i, 2].imshow(unnormalize(batch['query_images'][batch_idx[i], 0].permute(1,2,0).cpu().numpy(), NORMALIZE_MEAN, NORMALIZE_STD))
         ax[i, 2].axis('off')
         ax[i, 2].set_title('Query Image 1')
-        ax[i, 3].imshow(unnormalize(batch['query_images'][i, 1].permute(1,2,0).cpu().numpy(), NORMALIZE_MEAN, NORMALIZE_STD))
+        ax[i, 3].imshow(unnormalize(batch['query_images'][batch_idx[i], 1].permute(1,2,0).cpu().numpy(), NORMALIZE_MEAN, NORMALIZE_STD))
         ax[i, 3].axis('off')
         ax[i, 3].set_title('Query Image 2')
-        ax[i, 4].imshow(unnormalize(batch['query_images'][i, 2].permute(1,2,0).cpu().numpy(), NORMALIZE_MEAN, NORMALIZE_STD))
+        ax[i, 4].imshow(unnormalize(batch['query_images'][batch_idx[i], 2].permute(1,2,0).cpu().numpy(), NORMALIZE_MEAN, NORMALIZE_STD))
         ax[i, 4].axis('off')
         ax[i, 4].set_title('Query Image 3')
     
