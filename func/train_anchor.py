@@ -352,6 +352,7 @@ def spatio_temporal_IoU(preds, gt):
     bbox_frames_p = [torch.nonzero(preds['clip_with_bbox'][b]).view(-1) for b in range(batch_size)]
 
     results = []
+    count_neg = 0
 
     for b in range (batch_size):
 
@@ -362,6 +363,7 @@ def spatio_temporal_IoU(preds, gt):
 
         if not frames_union:
             stiou = 0.0
+            count_neg += 1
         else:
             sum_iou = 0
             for f in frames_intersection:
@@ -373,4 +375,4 @@ def spatio_temporal_IoU(preds, gt):
             stiou = sum_iou / size_union
         results.append(stiou)
 
-    return sum(results)/len(results)
+    return sum(results)/(len(results) - count_neg + 1e-8)
