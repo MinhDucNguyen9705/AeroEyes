@@ -22,7 +22,6 @@ def get_losses_with_anchor(config, preds, gts):
         pred_prob_refine = preds['prob_refine']     # [b,t]            
     b,t,N = pred_prob.shape 
     device = pred_prob.device
-    print('Batch size: ', b)
 
     if 'center' not in gts.keys():
         gts['center'] = (gts['clip_bbox'][...,:2] + gts['clip_bbox'][...,2:]) / 2.0
@@ -32,7 +31,7 @@ def get_losses_with_anchor(config, preds, gts):
     gt_hw = gts['hw']                       # [b,t,2]
     gt_bbox = gts['clip_bbox']              # [b,t,4]
     gt_prob = gts['clip_with_bbox']         # [b,t]
-    # gt_before_query = gts['before_query']   # [b,t]
+    gt_before_query = gts['before_query']   # [b,t]
 
     # assign labels to anchors
     if gt_prob.bool().any():
@@ -45,8 +44,8 @@ def get_losses_with_anchor(config, preds, gts):
     else:
         positive = torch.zeros(b,t,N).reshape(-1).bool().to(device)
 
-    # if torch.sum(positive.float()).item() == 0:   
-    #     positive[:1] = True
+    if torch.sum(positive.float()).item() == 0:   
+        positive[:1] = True
     loss_mask = positive.float().unsqueeze(1)                                    # [b*t*N,1]
 
     # anchor box regression loss
@@ -81,25 +80,18 @@ def get_losses_with_anchor(config, preds, gts):
     #     pred_prob = rearrange(pred_prob, 'b t N -> (b t N)')
     # else:
     pred_prob = rearrange(pred_prob, 'b t N -> (b t N)')
-    # gt_before_query_replicate = rearrange(gt_before_query.unsqueeze(2).repeat(1,1,N), 'b t N -> (b t N)')
-    # loss_prob = focal_loss(pred_prob[gt_before_query_replicate.bool()].float(),
-    #                     positive[gt_before_query_replicate.bool()].float())
-    loss_prob = focal_loss(pred_prob.float(),
-                        positive.float())
-
+    gt_before_query_replicate = rearrange(gt_before_query.unsqueeze(2).repeat(1,1,N), 'b t N -> (b t N)')
+    loss_prob = focal_loss(pred_prob[gt_before_query_replicate.bool()].float(),
+                        positive[gt_before_query_replicate.bool()].float())
+    
     # probability loss
     if 'prob_refine' in preds.keys():
         pred_prob_refine = pred_prob_refine.reshape(-1)
         weight = torch.tensor(config.loss.prob_bce_weight).to(gt_prob.device)
-        # weight_ = weight[gt_prob[gt_before_query.bool()].long()].reshape(-1)
-        weight_ = weight[gt_prob.long()].reshape(-1)
+        weight_ = weight[gt_prob[gt_before_query.bool()].long()].reshape(-1)
         criterion = nn.BCEWithLogitsLoss(reduce=False)
-        # loss_prob_refine = (criterion(pred_prob_refine[gt_before_query.reshape(-1).bool()], 
-        #                               gt_prob[gt_before_query.bool()]) * weight_).mean()
-        
-        loss_prob_refine = (criterion(pred_prob_refine, 
-                                      gt_prob) * weight_).mean()
-
+        loss_prob_refine = (criterion(pred_prob_refine[gt_before_query.reshape(-1).bool()], 
+                                      gt_prob[gt_before_query.bool()]) * weight_).mean()
 
     loss = {
         'loss_bbox_center': loss_center,
@@ -136,8 +128,6 @@ def get_losses_with_anchor(config, preds, gts):
             'prob_anchor': rearrange(pred_prob_top, '(b t) -> b t', b=b, t=t),
             'prob': rearrange(pred_prob_refine, '(b t) -> b t', b=b, t=t)
         }
-    print("max prob:", torch.sigmoid(pred_top['prob']).max().item())
-    print("mean prob:", torch.sigmoid(pred_top['prob']).mean().item())
 
     return loss, pred_top, gts
 
@@ -172,60 +162,60 @@ def get_losses_head(config, refine_prob, gts, preds_top):
     return loss, gt_prob_refine.reshape(b,t)
 
 
-def get_losses(config, preds, gts):
-    pred_center = rearrange(preds['center'], 'b t c -> (b t) c')
-    pred_hw = rearrange(preds['hw'], 'b t c -> (b t) c')
-    pred_bbox = rearrange(preds['bbox'], 'b t c -> (b t) c')
-    pred_prob = preds['prob'].reshape(-1)
+# def get_losses(config, preds, gts):
+#     pred_center = rearrange(preds['center'], 'b t c -> (b t) c')
+#     pred_hw = rearrange(preds['hw'], 'b t c -> (b t) c')
+#     pred_bbox = rearrange(preds['bbox'], 'b t c -> (b t) c')
+#     pred_prob = preds['prob'].reshape(-1)
 
-    if 'center' not in gts.keys():
-        gts['center'] = (gts['clip_bbox'][...,:2] + gts['clip_bbox'][...,2:]) / 2.0
-    if 'hw' not in gts.keys():
-        gts['hw'] = gts['center'] - gts['clip_bbox'][...,:2]   # actually half hw
-    gt_center = rearrange(gts['center'], 'b t c -> (b t) c')
-    gt_hw = rearrange(gts['hw'], 'b t c -> (b t) c')
-    gt_bbox = rearrange(gts['clip_bbox'], 'b t c -> (b t) c')
-    gt_prob = gts['clip_with_bbox'].reshape(-1)
-    gt_before_query = gts['before_query'].reshape(-1)
-    gt_ratio = get_bbox_ratio(gt_hw, gt_hw.device).reshape(-1)
+#     if 'center' not in gts.keys():
+#         gts['center'] = (gts['clip_bbox'][...,:2] + gts['clip_bbox'][...,2:]) / 2.0
+#     if 'hw' not in gts.keys():
+#         gts['hw'] = gts['center'] - gts['clip_bbox'][...,:2]   # actually half hw
+#     gt_center = rearrange(gts['center'], 'b t c -> (b t) c')
+#     gt_hw = rearrange(gts['hw'], 'b t c -> (b t) c')
+#     gt_bbox = rearrange(gts['clip_bbox'], 'b t c -> (b t) c')
+#     gt_prob = gts['clip_with_bbox'].reshape(-1)
+#     gt_before_query = gts['before_query'].reshape(-1)
+#     gt_ratio = get_bbox_ratio(gt_hw, gt_hw.device).reshape(-1)
 
-    # bbox loss
-    loss_center = F.l1_loss(pred_center[gt_prob.bool()], gt_center[gt_prob.bool()])
-    loss_hw = F.l1_loss(pred_hw[gt_prob.bool()], gt_hw[gt_prob.bool()])
-    #loss_bbox = F.l1_loss(pred_bbox[gt_prob.bool()], gt_bbox[gt_prob.bool()])
-    iou, giou, loss_giou = GiouLoss(pred_bbox, gt_bbox, mask=gt_prob.bool())
-    if 'bbox_ratio' in preds.keys():
-        pred_ratio = preds['bbox_ratio'].reshape(-1)
-        loss_ratio = F.l1_loss(pred_ratio[gt_prob.bool()], gt_ratio[gt_prob.bool()])
+#     # bbox loss
+#     loss_center = F.l1_loss(pred_center[gt_prob.bool()], gt_center[gt_prob.bool()])
+#     loss_hw = F.l1_loss(pred_hw[gt_prob.bool()], gt_hw[gt_prob.bool()])
+#     #loss_bbox = F.l1_loss(pred_bbox[gt_prob.bool()], gt_bbox[gt_prob.bool()])
+#     iou, giou, loss_giou = GiouLoss(pred_bbox, gt_bbox, mask=gt_prob.bool())
+#     if 'bbox_ratio' in preds.keys():
+#         pred_ratio = preds['bbox_ratio'].reshape(-1)
+#         loss_ratio = F.l1_loss(pred_ratio[gt_prob.bool()], gt_ratio[gt_prob.bool()])
     
-    # occurance loss
-    weight = torch.tensor(config.loss.prob_bce_weight).to(gt_prob.device)
-    weight_ = weight[gt_prob[gt_before_query.bool()].long()].reshape(-1)
-    criterion = nn.BCEWithLogitsLoss(reduce=False)
-    loss_prob = (criterion(pred_prob[gt_before_query.bool()], gt_prob[gt_before_query.bool()]) * weight_).mean()
-    #loss_prob = F.binary_cross_entropy(pred_prob, gt_prob)
-    loss = {
-        'loss_bbox_center': loss_center,
-        'loss_bbox_hw': loss_hw,
-        #'loss_bbox': loss_bbox,
-        'loss_bbox_giou': loss_giou,
-        'loss_prob': loss_prob,
-        # weights
-        #'weight_bbox': config.loss.weight_bbox,
-        'weight_bbox_center': config.loss.weight_bbox_center,
-        'weight_bbox_hw': config.loss.weight_bbox_hw,
-        'weight_bbox_giou': config.loss.weight_bbox_giou,
-        'weight_prob': config.loss.weight_prob,
-        # information
-        'iou': iou.detach(),
-        'giou': giou.detach()
-    }
-    if 'bbox_ratio' in preds.keys():
-        loss.update({
-                'loss_bbox_ratio': loss_ratio,
-                'weight_bbox_ratio': config.loss.weight_bbox_ratio
-            })
-    return loss
+#     # occurance loss
+#     weight = torch.tensor(config.loss.prob_bce_weight).to(gt_prob.device)
+#     weight_ = weight[gt_prob[gt_before_query.bool()].long()].reshape(-1)
+#     criterion = nn.BCEWithLogitsLoss(reduce=False)
+#     loss_prob = (criterion(pred_prob[gt_before_query.bool()], gt_prob[gt_before_query.bool()]) * weight_).mean()
+#     #loss_prob = F.binary_cross_entropy(pred_prob, gt_prob)
+#     loss = {
+#         'loss_bbox_center': loss_center,
+#         'loss_bbox_hw': loss_hw,
+#         #'loss_bbox': loss_bbox,
+#         'loss_bbox_giou': loss_giou,
+#         'loss_prob': loss_prob,
+#         # weights
+#         #'weight_bbox': config.loss.weight_bbox,
+#         'weight_bbox_center': config.loss.weight_bbox_center,
+#         'weight_bbox_hw': config.loss.weight_bbox_hw,
+#         'weight_bbox_giou': config.loss.weight_bbox_giou,
+#         'weight_prob': config.loss.weight_prob,
+#         # information
+#         'iou': iou.detach(),
+#         'giou': giou.detach()
+#     }
+#     if 'bbox_ratio' in preds.keys():
+#         loss.update({
+#                 'loss_bbox_ratio': loss_ratio,
+#                 'weight_bbox_ratio': config.loss.weight_bbox_ratio
+#             })
+#     return loss
 
 
 def GiouLoss(bbox_p, bbox_g, mask=None):
@@ -277,22 +267,22 @@ def GiouLoss(bbox_p, bbox_g, mask=None):
     return iou, giou, loss_giou
 
 
-def get_bbox_ratio(hw, device):
-    '''
-    params:
-        hw: height and width of bbox, in shape [B,2]
-    return:
-        ratio: closest bbox aspect ratio in default_aspect_ratios, in shape [B]
-    '''
-    b = hw.shape[0]
-    default_ratios = default_aspect_ratios.to(device)
+# def get_bbox_ratio(hw, device):
+#     '''
+#     params:
+#         hw: height and width of bbox, in shape [B,2]
+#     return:
+#         ratio: closest bbox aspect ratio in default_aspect_ratios, in shape [B]
+#     '''
+#     b = hw.shape[0]
+#     default_ratios = default_aspect_ratios.to(device)
 
-    h, w = hw.split([1,1], dim=-1)
-    ratio = h / w
-    distance = torch.abs(ratio.repeat(1, default_ratios.shape[0]) - default_ratios.unsqueeze(0))     # [b,n]
-    idx = torch.argmax(distance, dim=-1)    # [b]
-    ratio_quant = torch.tensor([default_ratios[it.long()] for it in idx]).to(device)
-    return ratio_quant
+#     h, w = hw.split([1,1], dim=-1)
+#     ratio = h / w
+#     distance = torch.abs(ratio.repeat(1, default_ratios.shape[0]) - default_ratios.unsqueeze(0))     # [b,n]
+#     idx = torch.argmax(distance, dim=-1)    # [b]
+#     ratio_quant = torch.tensor([default_ratios[it.long()] for it in idx]).to(device)
+#     return ratio_quant
 
 
 def focal_loss(inputs, targets, alpha=0.25, gamma=2.0):
@@ -319,7 +309,7 @@ def focal_loss(inputs, targets, alpha=0.25, gamma=2.0):
     return F_loss.mean()
 
 
-def BCELogitsLoss_with_HNM(pred_prob, gt_prob, positive, weight):
+def BCELogitsLoss_with_HNM(pred_prob, gt_prob, positive, gt_before_query, weight):
     '''
     pred_prob: predicted probability of anchors, in shape [b,t,N], without sigmoid
     gt_prob: GT probability of frames, in shape [b,t]
@@ -339,17 +329,18 @@ def BCELogitsLoss_with_HNM(pred_prob, gt_prob, positive, weight):
     BCE_loss = rearrange(BCE_loss, '(b t N) -> b t N', b=b, t=t)
     positive = rearrange(positive, '(b t N) -> b t N', b=b, t=t)
 
-    loss = HardNegMining(pred_prob, gt_prob, positive, BCE_loss, weight)
+    loss = HardNegMining(pred_prob, gt_prob, positive, BCE_loss, gt_before_query, weight)
     return loss.mean()
 
 
-def HardNegMining(pred_prob, gt_prob, positive, BCE_loss, weight, ratio_neg_pos=3., ratio_hard=0.05):
+def HardNegMining(pred_prob, gt_prob, positive, BCE_loss, gt_before_query, weight, ratio_neg_pos=3., ratio_hard=0.05):
     '''
     Perform frame-level hard negative mining
     Params:
         ratio_neg_pos: negative / positive ratio
         ratio_hard: ratio of negatives from all anchors if no positive anchor is assigned
         pred_prob, gt_prob, positive, BCE_loss in [b,t,N]
+        gt_before_query: in [b,t]
         weight: weights for positive and negative predictions
     Mine the anchor boxes with three type:
         1. query object doesn't occur and no anchor is assigned as positive
@@ -364,9 +355,11 @@ def HardNegMining(pred_prob, gt_prob, positive, BCE_loss, weight, ratio_neg_pos=
     for i in range(b_real):
         # get results for each visual query
         query_idx = [(i + j * b_real) for j in range(b_real)]       # corresponds to how we generate cross-video data
+
+        cur_gt_before_query = gt_before_query[query_idx].bool()     # [b_real, t]
         
-        cur_positive = positive[query_idx]                          # [M], for all valid anchor box of the query (reject unreliable ones after query time)
-        cur_loss = BCE_loss[query_idx]                              # [M]
+        cur_positive = positive[query_idx][cur_gt_before_query]     # [M], for all valid anchor box of the query (reject unreliable ones after query time)
+        cur_loss = BCE_loss[query_idx][cur_gt_before_query]         # [M]
         M = cur_loss.shape[0]
 
         num_pos = int(torch.sum(cur_positive).item())

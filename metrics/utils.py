@@ -249,4 +249,16 @@ def spatio_temporal_IoU(preds, gt):
             stiou = sum_iou / size_union
         results.append(stiou)
 
-    return sum(results)/(len(results) - count_neg)
+    return sum(results)/(len(results) - count_neg + 1e-6)
+
+def calculate_confusion_matrix(pred_prob, gt_prob, prob_theta=0.5):
+    prob_pred = (torch.sigmoid(pred_prob) > prob_theta).float()
+    true_positive = (prob_pred * gt_prob).sum()
+    false_positive = (prob_pred * (1 - gt_prob)).sum()
+    false_negative = ((1 - prob_pred) * gt_prob).sum()
+
+    precision = true_positive / (true_positive + false_positive + 1e-8)
+    recall = true_positive / (true_positive + false_negative + 1e-8)
+    f1_score = 2 * (precision * recall) / (precision + recall + 1e-8)
+
+    return precision, recall, f1_score

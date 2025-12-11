@@ -9,13 +9,12 @@ import torch
 import torch.nn.functional as F
 from einops import rearrange
 import numpy as np
-from dataset.dataset_utils import process_data, recover_bbox, unnormalize
+from dataset.dataset_utils import recover_bbox, NORMALIZE_MEAN, NORMALIZE_STD, unnormalize, process_data
 import wandb
-from metrics.utils import postprocess_results, calculate_iou
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader
+import random
+from metrics.utils import calculate_iou, postprocess_results
 
-NORMALIZE_MEAN = [0.485, 0.456, 0.406]
-NORMALIZE_STD = [0.229, 0.224, 0.225]
 
 def vis_pred_clip(sample, pred, iter_num, output_dir, subfolder='train'):
     output_dir = os.path.join(output_dir, 'visualization', subfolder)
@@ -30,7 +29,7 @@ def vis_pred_clip(sample, pred, iter_num, output_dir, subfolder='train'):
     prob_pred = pred['prob'].detach().cpu()            # [B,T]
 
     B, T, _, H, W = clip.shape
-    H2, W2 = query_aug.shape[-2:]
+    _, _, H2, W2 = query_aug.shape
 
     for i in range(B):
         frames = []
@@ -38,18 +37,15 @@ def vis_pred_clip(sample, pred, iter_num, output_dir, subfolder='train'):
         cur_bbox, cur_bbox_pred = bbox[i], bbox_pred[i].clamp(min=0.0, max=1.0)     # [T,4]
         cur_prob, cur_prob_pred = prob[i], prob_pred[i]                             # [T]
 
-        # cur_query = cur_query.clamp(min=0.0, max=1.0).permute(1,2,0).numpy()        # [H2,W2,3]
-        cur_query = cur_query.clamp(min=0.0, max=1.0).permute(0,2,3,1).numpy() 
+        cur_query = cur_query.clamp(min=0.0, max=1.0).permute(1,2,0).numpy()        # [H2,W2,3]
         for j in range(T):
             # draw clips with bbox
             img = cur_clip[j].clamp(min=0.0, max=1.0)                               
             img = img.permute(1,2,0).numpy()                # [H,W,3]
-            fig, ax = plt.subplots(1,4, dpi=100)
+            fig, ax = plt.subplots(1,2, dpi=100)
             fig.suptitle('Prob: gt {:.3f}, pred {:.3f}'.format(cur_prob[j].item(), torch.sigmoid(cur_prob_pred[j]).item()), fontsize=20)
             ax[0].imshow(img)
-            ax[1].imshow(cur_query[0])
-            ax[2].imshow(cur_query[1])
-            ax[3].imshow(cur_query[2])
+            ax[1].imshow(cur_query)
             if cur_prob[j].item() > 0.5:
                 draw_bbox_gt = dataset_utils.recover_bbox(cur_bbox[j], H, W)  # [4]
                 rect = patches.Rectangle((draw_bbox_gt[1], draw_bbox_gt[0]), 
@@ -144,7 +140,7 @@ def vis_pred_clip_inference(clips, queries, pred, save_path, iter_num):
         writer.append_data(cv2.imread(save_path + '_tmp.jpg')[...,::-1])
     writer.close()
 
-def visualization(config, model, dataloader, epoch, device, num_samples=2):
+def visualization(config, model, dataloader, epoch, device, num_samples=4):
 
     num_samples = min(dataloader.batch_size, num_samples)
     model.eval()
@@ -155,56 +151,50 @@ def visualization(config, model, dataloader, epoch, device, num_samples=2):
     # new dataloader (no shuffle, since indices are already random)
     random_loader = DataLoader(subset, batch_size=dataloader.batch_size, shuffle=False)
     batch = next(iter(random_loader))
-    batch = dataset_utils.replicate_sample_for_hnm(batch)
     batch = process_data(config, batch, split='val', device=device)
-    
-    # batch = dataset[random_idx]
 
     with torch.no_grad():
         clips = batch['clip'].to(device)
-        queries = batch['query_images'].to(device)
+        queries = batch['query'].to(device)
         output = model(clips, queries, training=False, fix_backbone=True)
         final_output = postprocess_results(output)
         
-    fig, ax = plt.subplots(num_samples, 5, figsize=(10, num_samples*3))
+    fig, ax = plt.subplots(num_samples, 3, figsize=(10, num_samples*3))
     num_frames = batch['clip'].shape[1]
     batch_idx = np.random.choice(batch['clip'].shape[0], num_samples, replace=False)
-
+    bbox_indices = [torch.nonzero(batch['clip_with_bbox'][b]).view(-1) for b in range(dataloader.batch_size)]
+    frame = [random.choice(bbox_indices[batch_idx[i]]).item() if len(bbox_indices[batch_idx[i]])>0 else 0 for i in range(num_samples)]
+    print(frame)
+    
     for i in range (num_samples):
-        frame = np.random.randint(0, num_frames)
-        clip = batch['clip'][batch_idx[i], frame].permute(1, 2, 0).cpu().numpy()
+        # frame = np.random.randint(0, num_frames)
+        clip = batch['clip'][batch_idx[i], frame[i]].permute(1, 2, 0).cpu().numpy()
         clip = unnormalize(clip, NORMALIZE_MEAN, NORMALIZE_STD)
         h, w, _ = clip.shape
         ax[i, 0].imshow(clip)
         ax[i, 0].axis('off')
         ax[i, 0].set_title(f"{batch['object_title'][batch_idx[i]]}")
-        if batch['clip_with_bbox'][batch_idx[i], frame] == 1:
-            gt_bbox = batch['clip_bbox'][batch_idx[i], frame]
+        if batch['clip_with_bbox'][batch_idx[i], frame[i]] == 1:
+            gt_bbox = batch['clip_bbox'][batch_idx[i], frame[i]]
             gt_bbox = recover_bbox(gt_bbox, h, w)
             rect = plt.Rectangle((gt_bbox[1], gt_bbox[0]), (gt_bbox[3]-gt_bbox[1]), (gt_bbox[2]-gt_bbox[0]), linewidth=1, edgecolor='r', facecolor='none')
             ax[i, 0].add_patch(rect)
         ax[i, 0].set_title('GT')
         ax[i, 1].imshow(clip)
-        if final_output['clip_with_bbox'][batch_idx[i], frame] == 1:
-            bbox = final_output['bbox'][batch_idx[i], frame]
+        if final_output['clip_with_bbox'][batch_idx[i], frame[i]] == 1:
+            bbox = final_output['bbox'][batch_idx[i], frame[i]]
             bbox = recover_bbox(bbox, h, w)
             rect = plt.Rectangle((bbox[1], bbox[0]), (bbox[3]-bbox[1]), (bbox[2]-bbox[0]), linewidth=1, edgecolor='r', facecolor='none')
             ax[i, 1].add_patch(rect)
-        if batch['clip_with_bbox'][batch_idx[i], frame] == 1 and final_output['clip_with_bbox'][batch_idx[i], frame] == 1:
-            iou = calculate_iou(batch['clip_bbox'][batch_idx[i], frame], final_output['bbox'][batch_idx[i], frame])
+        if batch['clip_with_bbox'][batch_idx[i], frame[i]] == 1 and final_output['clip_with_bbox'][batch_idx[i], frame[i]] == 1:
+            iou = calculate_iou(batch['clip_bbox'][batch_idx[i], frame[i]], final_output['bbox'][batch_idx[i], frame[i]])
         else:
             iou = 0.0
         ax[i, 1].axis('off')
         ax[i, 1].set_title(f'Predicted, IoU = {iou: .2f}')
-        ax[i, 2].imshow(unnormalize(batch['query_images'][batch_idx[i], 0].permute(1,2,0).cpu().numpy(), NORMALIZE_MEAN, NORMALIZE_STD))
+        ax[i, 2].imshow(unnormalize(batch['query'][batch_idx[i]].permute(1,2,0).cpu().numpy(), NORMALIZE_MEAN, NORMALIZE_STD))
         ax[i, 2].axis('off')
-        ax[i, 2].set_title('Query Image 1')
-        ax[i, 3].imshow(unnormalize(batch['query_images'][batch_idx[i], 1].permute(1,2,0).cpu().numpy(), NORMALIZE_MEAN, NORMALIZE_STD))
-        ax[i, 3].axis('off')
-        ax[i, 3].set_title('Query Image 2')
-        ax[i, 4].imshow(unnormalize(batch['query_images'][batch_idx[i], 2].permute(1,2,0).cpu().numpy(), NORMALIZE_MEAN, NORMALIZE_STD))
-        ax[i, 4].axis('off')
-        ax[i, 4].set_title('Query Image 3')
+        ax[i, 2].set_title('Query Image')
     
     plt.tight_layout()
     wandb.log({f"Epoch {epoch}": wandb.Image(fig)})

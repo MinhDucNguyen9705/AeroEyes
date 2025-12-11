@@ -12,11 +12,8 @@ import torch
 import torch.nn.functional as F
 from PIL import Image
 from torch.utils.data import Dataset, get_worker_info
-from torchvision import transforms as T
+from torchvision import transforms
 from dataset import dataset_utils
-#from dataset.dataset_utils import normalize_bbox, recover_bbox, bbox_torchTocv2
-from decord import VideoReader, cpu
-import glob
 
 split_files = {
             'train': 'vq_train.json',
@@ -26,109 +23,177 @@ split_files = {
 
 NORMALIZE_MEAN = [int(it*255) for it in [0.485, 0.456, 0.406]]
 NORMALIZE_STD = [int(it*255) for it in [0.229, 0.224, 0.225]]
-    
-class VisualQuery2DDataset(Dataset):
-    def __init__(self, clip_params, query_params, data_paths, mode='train', transform=None, is_clip=True):
-        self.clip_params = clip_params
-        self.query_params = query_params
-        self.data_paths = data_paths
-        self.reduced_data_paths = [path.split('/')[-1] for path in self.data_paths]
-        self.mode = mode
-        self.is_clip = is_clip
+
+
+class QueryVideoDataset(Dataset):
+    def __init__(self,
+                 dataset_name,
+                 query_params,
+                 clip_params,
+                 data_dir,
+                 clip_dir,
+                 meta_dir,
+                 split='train',
+                 clip_reader='decord_balance',
+                 eval_vis_freq=50,
+                 ):
         
-        if transform is None:
-            self.transform = T.Compose([
-                T.Resize((self.query_params['query_size'], self.query_params['query_size'])),
-                T.ToTensor()
-            ])
-        else:
-            self.transform = transform
+        self.dataset_name = dataset_name
+        self.query_params = query_params
+        self.clip_params = clip_params
 
         if self.clip_params['padding_value'] == 'zero':
             self.padding_value = 0
         elif self.clip_params['padding_value'] == 'mean':
-            self.padding_value = 0.5
-
-        if self.mode == 'train' or self.mode == 'val':
-            self.annotations_path = os.path.join(self.data_paths[0].split('/samples')[0], 'annotations/annotations.json')
-            self.annotations = self._read_annotations(self.annotations_path)
-            if self.mode == 'val':
-                self.annotations = self.annotations * 4
-            else:
-                self.annotations = self.annotations * 2
-            # self.response_track = {anno['video_id']: [] for anno in self.annotations}
-            # for anno in self.annotations:
-            #     self.response_track[anno['video_id']] += anno['response_track']
-        else:
-            self.annotations = None
-
-    def _read_annotations(self, annotation_path):
-        with open(annotation_path, 'r') as f:
-            anno_json = json.load(f)
-        self.annotations = []
-        for video in anno_json:
-            if video['video_id'] in self.reduced_data_paths:
-                for clip_id, clip in enumerate(video['annotations']):
-                    response_track_frame_ids = []
-                    bboxes = clip['bboxes']
-                    for bbox in bboxes:
-                        response_track_frame_ids.append(int(bbox['frame']))
-                    frame_id_min = min(response_track_frame_ids)
-                    frame_id_max = max(response_track_frame_ids)
-                    curr_anno = {
-                        'video_id': video['video_id'],
-                        'clip_id': clip_id, 
-                        'response_track': clip['bboxes'],
-                        'response_track_valid_range': [frame_id_min, frame_id_max],
-                        'object_title': video['video_id'].split('_')[0],
-                        'clip_fps': video.get('clip_fps', 25)
-                    }
-                    self.annotations.append(curr_anno)
-        new_annotations = {}
-        for anno in self.annotations:
-            if anno['video_id'] not in new_annotations:
-                new_annotations[anno['video_id']] = anno
-                new_annotations[anno['video_id']]['response_track_valid_range'] = [anno['response_track_valid_range']]
-            else:
-                new_annotations[anno['video_id']]['response_track'] += anno['response_track']
-                new_annotations[anno['video_id']]['response_track_valid_range'].append(anno['response_track_valid_range'])
-        # print(new_annotations)
-        self.annotations = list(new_annotations.values())
-        return self.annotations
-
-    def _get_clip_bbox(self, sample, clip_idxs, clip_h, clip_w):
+            self.padding_value = 0.5 #tuple(NORMALIZE_MEAN)
         
+        self.data_dir = data_dir
+        self.clip_dir = clip_dir
+        self.meta_dir = meta_dir
+        # self.video_dir = '/vision/vision_data/Ego4D/v1/full_scale'
+
+        self.split = split
+
+        self.clip_reader = video_reader_dict[clip_reader]
+        self._load_metadata()
+        # if self.split != 'train':
+        #     self.annotations = self.annotations[::eval_vis_freq]
+
+
+    def _load_metadata(self):
+        target_split_fp = split_files[self.split]
+        ann_file = os.path.join(self.meta_dir, target_split_fp)
+        with open(ann_file) as f:
+            anno_json = json.load(f)
+
+        self.annotations, n_samples, n_samples_valid = [], 0, 0
+        for video_data in anno_json['videos']:
+            for clip_data in video_data['clips']:
+                for clip_anno in clip_data['annotations']:
+                    for qset_id, qset in clip_anno['query_sets'].items():
+                        if not qset['is_valid']:
+                            continue
+                        response_track_frame_ids = []
+                        for frame_it in qset['response_track']:
+                            response_track_frame_ids.append(int(frame_it['frame_number']))
+                        frame_id_min, frame_id_max = min(response_track_frame_ids), max(response_track_frame_ids)
+                        curr_anno = {
+                            "metadata": {
+                                "video_uid": video_data["video_uid"],
+                                "video_start_sec": clip_data["video_start_sec"],
+                                "video_end_sec": clip_data["video_end_sec"],
+                                "clip_fps": clip_data["clip_fps"],
+                            },
+                            "clip_uid": clip_data["clip_uid"],
+                            "clip_fps": clip_data["clip_fps"],
+                            "query_set": qset_id,
+                            "query_frame": qset["query_frame"],
+                            "response_track": sorted(qset["response_track"], key=lambda x: x['frame_number']),
+                            "response_track_valid_range": [frame_id_min, frame_id_max], 
+                            "visual_crop": qset["visual_crop"],
+                            "object_title": qset["object_title"],
+                            # Assign a unique ID to this annotation for the dataset
+                            "dataset_uid": f"{self.split}_{n_samples_valid:010d}"
+                        }
+                        query_path = self._get_query_path(curr_anno)
+                        if os.path.isfile(query_path):
+                            self.annotations.append(curr_anno)
+                            n_samples_valid += 1
+                        n_samples += 1
+        print('Find {} data samples, {} valid (query path exist)'.format(n_samples, n_samples_valid))
+            # with open(anno_processed_path, 'w') as ff:
+            #     json.dump(self.annotations, ff)
+                        
+        print('Data split {}, with {} samples'.format(self.split, len(self.annotations)))
+    
+    def _get_clip_path(self, sample):
+        clip_name = sample['clip_uid']
+        clip_path = os.path.join(self.clip_dir, clip_name + '.mp4')
+        return clip_path
+    
+
+    def _get_query_path(self, sample):
+        clip_name = sample['clip_uid']
+        image_name = int(sample["visual_crop"]["frame_number"])# "{}/frame_{:07d}.jpg"
+        image_path = os.path.join(self.data_dir, "query_image", "{}/frame_{}.jpg".format(clip_name, image_name))
+        return image_path
+    
+    def _get_clip_bbox(self, sample, clip_idxs):
         clip_with_bbox, clip_bbox = [], []
         response_track = sample['response_track']
-        # response_track = self.response_track[sample['video_id']]
         clip_bbox_all = {}
-        
         for it in response_track:
-            clip_bbox_all[int(it['frame'])] = [it['y1'], it['x1'], it['y2'], it['x2']]
-
-        # print(clip_bbox_all.keys())
-        for idx in clip_idxs:
-            # print(idx)
-            if int(idx) in clip_bbox_all:
+            clip_bbox_all[int(it['frame_number'])] = [it['y'], it['x'], it['y'] + it['height'], it['x'] + it['width']] # in torch
+            origin_hw = [int(it['original_height']), int(it['original_width'])]
+        for id in clip_idxs:
+            if int(id) in clip_bbox_all.keys():
                 clip_with_bbox.append(True)
-                curr_bbox = torch.tensor(clip_bbox_all[int(idx)])
-                curr_bbox_normalize = dataset_utils.normalize_bbox(curr_bbox, clip_h, clip_w)
-                clip_bbox.append(curr_bbox_normalize)
+                cur_bbox = torch.tensor(clip_bbox_all[int(id)])
+                cur_bbox_normalize = normalize_bbox(cur_bbox, origin_hw[0], origin_hw[1])
+                clip_bbox.append(cur_bbox_normalize)
             else:
                 clip_with_bbox.append(False)
                 clip_bbox.append(torch.tensor([0.0, 0.0, 0.00001, 0.00001]))
-        clip_with_bbox = torch.tensor(clip_with_bbox).float()
-        clip_bbox = torch.stack(clip_bbox, dim=0)
+        clip_with_bbox = torch.tensor(clip_with_bbox).float()    # [T]
+        clip_bbox = torch.stack(clip_bbox)                      # [T, 4]
         return clip_with_bbox, clip_bbox
-
-    def _get_clip_path(self, data_path):
-        clip_path = glob.glob(os.path.join(data_path, '*.mp4'))[0]
-        return clip_path
-
-    def _get_query_path(self, data_path):
-        query_path = glob.glob(os.path.join(data_path, 'object_images', '*.jpg'))
-        return query_path
     
+
+    def _get_query(self, sample, query_path):
+        query = Image.open(query_path)
+        width, height = query.size
+        # validate image size
+        anno_width = sample["visual_crop"]["original_width"]
+        anno_height = sample["visual_crop"]["original_height"]
+        if (anno_height, anno_width) != (height, width):
+            query = query.resize((anno_width, anno_height))
+            width, height = anno_width, anno_height
+        # pad query
+        if self.query_params['query_padding']:
+            transform = T.Compose([T.ToTensor()])
+            query = transform(query)    # [c,h,w]
+            _, h, w = query.shape
+            max_size, min_size = max(h, w), min(h, w)
+            pad_height = True if h < w else False
+            pad_size = (max_size - min_size) // 2
+            if pad_height:
+                pad_input = [0, pad_size] * 2                   # for the left, top, right and bottom borders respectively
+            else:
+                pad_input = [pad_size, 0] * 2
+            transform_pad = T.Pad(pad_input)
+            query = transform_pad(query)        # square image
+            # resize query
+            query_size = self.query_params['query_size']
+            query = F.interpolate(query.unsqueeze(0), size=(query_size, query_size), mode='bilinear').squeeze(0)
+        else:
+            query_size = self.query_params['query_size']
+            query = query.resize((query_size, query_size))
+            query = torch.from_numpy(np.asarray(query) / 255.0).permute(2,0,1)  # RGB, [C,H,W]
+        return query
+    
+    def _process_bbox(self, clip_bbox, clip_with_bbox, min_size=0.05, max_ratio=2.5):
+        '''
+        clip_bbox in shape [T,4], value within [0,1], xyxy in torch coordinate
+        clip_with_bbox in shape [T], float
+        '''
+        T = clip_bbox.shape[0]
+        min_ratio = 1 / max_ratio
+
+        clip_bbox_h = clip_bbox[:,2] - clip_bbox[:,0]   # [T]
+        clip_bbox_w = clip_bbox[:,3] - clip_bbox[:,1]   # [T]
+
+        # clean the annotation by bbox size
+        clip_with_bbox *= (clip_bbox_w > min_size).float()
+        clip_with_bbox *= (clip_bbox_h > min_size).float()
+
+        # clean the annotation by bbox width
+        clip_bbox_ratio = clip_bbox_h / clip_bbox_w
+        clip_with_bbox *= (clip_bbox_ratio < max_ratio).float()
+        clip_with_bbox *= (clip_bbox_ratio > min_ratio).float()
+
+        return clip_bbox, clip_with_bbox
+    
+
     def _process_clip(self, clip, clip_bbox, clip_with_bbox):
         '''
         clip: in [T,C,H,W]
@@ -138,14 +203,14 @@ class VisualQuery2DDataset(Dataset):
         target_size = self.clip_params['fine_size']
 
         t, _, h, w = clip.shape
-        clip_bbox = dataset_utils.recover_bbox(clip_bbox, h, w)
+        clip_bbox = recover_bbox(clip_bbox, h, w)
 
         try:
             fg_idxs = torch.where(clip_with_bbox)[0].numpy().tolist()
             idx = random.choice(fg_idxs)
             frame = (clip[idx] * 255).permute(1,2,0).numpy().astype(np.uint8)
             frame = Image.fromarray(frame)
-            bbox = dataset_utils.bbox_torchTocv2(clip_bbox[idx]).tolist()
+            bbox = bbox_torchTocv2(clip_bbox[idx]).tolist()
             query = frame.crop((bbox[0], bbox[1], bbox[2], bbox[3]))
             query_size = self.query_params['query_size']
             query = query.resize((query_size, query_size))
@@ -176,170 +241,63 @@ class VisualQuery2DDataset(Dataset):
         return clip, clip_bbox, clip_with_bbox, query, h, w
 
     def __len__(self):
-        # Return the total number of samples
         return len(self.annotations)
 
     def __getitem__(self, idx):
-        # Load and return a sample
         sample = self.annotations[idx]
-        data_path = os.path.join('/'.join(self.data_paths[0].split('/')[:-1]), sample['video_id'])
-        query_path = self._get_query_path(data_path)
-        query_images = [Image.open(img_path).convert("RGB") for img_path in query_path]
-        query_images = [self.transform(img) for img in query_images]
-        query_images = torch.stack(query_images, dim=0)
-        # query_images = Image.open(query_path[0]).convert("RGB")
-        # query_images = self.transform(query_images)
-        
+        query_path = self._get_query_path(sample)
+        clip_path = self._get_clip_path(sample)
+
         sample_method = self.clip_params['sampling']
+        object_title = sample['object_title']
+        if self.clip_reader == 'decord_balance':
+            assert sample_method == 'rand'
+        if self.split == 'test':
+            sample_method = 'uniform'
 
-        if self.is_clip:
-            clip_path = self._get_clip_path(data_path)
-            # if self.mode == 'train':
-            #     clip, clip_idxs = read_frames_decord_random(clip_path,
-            #                                                 self.clip_params['num_frames'],
-            #                                                 self.clip_params['frame_interval'],
-            #                                                 sample,
-            #                                                 self.response_track[sample['video_id']])
-            # else:
-            clip, clip_idxs = read_frames_decord_balance(clip_path,
-                                                        self.clip_params['num_frames'],
-                                                        self.clip_params['frame_interval'],
-                                                        sample,
-                                                        sampling=sample_method)
-        else:
-            clip_path = glob.glob(os.path.join(data_path, 'video/*.jpg')) + glob.glob(os.path.join(data_path, 'video/*.png')) + glob.glob(os.path.join(data_path, 'video/*.jpeg'))
-            clip_path.sort()
-            clip_idxs = sample_frames_balance(self.clip_params['num_frames'],
-                                            self.clip_params['frame_interval'], 
-                                            sample, 
-                                            sampling='rand')
-            clip_idxs = [min(it, len(clip_path)-1) for it in clip_idxs]
-            sample_clip_path = [clip_path[i] for i in clip_idxs]
-            clip = [Image.open(img_path).convert("RGB") for img_path in sample_clip_path]
-            clip = [T.ToTensor()(img) for img in clip]
-            clip = torch.stack(clip, dim=0)
-
-        # print(clip_idxs)
-        # print(sample['response_track'])
-        clip_h, clip_w = clip.shape[-2], clip.shape[-1]
-
-        clip_with_bbox, clip_bbox = self._get_clip_bbox(sample, clip_idxs, clip_h, clip_w)
-        # print(clip_with_bbox)
-        clip, clip_bbox, clip_with_bbox, query, clip_h, clip_w = self._process_clip(clip, clip_bbox, clip_with_bbox)
+        # load clip, in shape [T,C,H,W] within value range [0,1]
+        try:
+            if os.path.isfile(clip_path):
+                clip, clip_idxs, before_query = self.clip_reader(clip_path, 
+                                                   self.clip_params['clip_num_frames'],
+                                                   self.clip_params['frame_interval'],
+                                                   sample,
+                                                   sampling=sample_method)
+                                                #    sample_method, 
+                                                #    fix_start=fix_start)
+            else:
+                print(f"Warning: missing video file {clip_path}.")
+                assert False
+        except Exception as e:
+                raise ValueError(
+                    f'Clip loading failed for {clip_path}, clip loading for this dataset is strict.') from e
         
-        results = {
-            'object_title': sample['object_title'],
-            'clip': clip,    # [num_frame, C, H, W]
-            'clip_with_bbox': clip_with_bbox,
-            'clip_bbox': clip_bbox.float(),
-            'clip_idxs': torch.tensor(clip_idxs),
-            'query_images': query_images,
-            'clip_h': clip_h,
-            'clip_w': clip_w,
-            # 'query': query
-        }
+        # load clip bounding box
+        clip_with_bbox, clip_bbox = self._get_clip_bbox(sample, clip_idxs)
 
+        # clip with square shape, bbox processed accordingly
+        clip, clip_bbox, clip_with_bbox, query, clip_h, clip_w = self._process_clip(clip, clip_bbox, clip_with_bbox)
+
+        # load query image
+        query_canonical = self._get_query(sample, query_path)
+        #if self.split != 'train' or (not torch.is_tensor(query)):
+        query = query_canonical.clone()
+
+        results = {
+            'object_title': object_title,                   # str
+            'clip': clip.float(),                           # [T,3,H,W]
+            'clip_with_bbox': clip_with_bbox.float(),       # [T]
+            'before_query': before_query.bool(),            # [T]
+            'clip_bbox': clip_bbox.float().clamp(min=0.0, max=1.0),                 # [T,4]
+            'query': query.float(),                         # [3,H2,W2]
+            'clip_h': torch.tensor(clip_h),
+            'clip_w': torch.tensor(clip_w)
+        }
         return results
 
-class TestDataset(Dataset):
-    def __init__(self, clip_params, query_params, video_paths, transform=None, pad_last=True):
-        self.video_paths = video_paths
-        self.num_frames = clip_params['num_frames']
-        self.frame_interval = clip_params['frame_interval']
-        self.pad_last = pad_last
-        self.clip_params = clip_params
-        self.query_params = query_params
-        
-        if transform is None:
-            self.transform = T.Compose([
-                T.Resize((self.query_params['query_size'], self.query_params['query_size'])),
-                T.ToTensor()
-            ])
-        else:
-            self.transform = transform
-            
-        self.clips = self._index_clips()
-
-    def _index_clips(self):
-        clips = []
-        for vid_path in self.video_paths:
-            query_path = glob.glob(os.path.join('/'.join(vid_path.split('/')[:-1]), 'object_images/*.jpg'))
-            vr = VideoReader(vid_path, ctx=cpu(0))
-            total = len(vr)
-            last_start = 0
-            for start in range(0, total - self.num_frames + 1, self.frame_interval):
-                clips.append((vid_path, query_path, start, total))
-                last_start = start
-            if self.pad_last and last_start + self.num_frames + self.frame_interval > total:
-                clips.append((vid_path, query_path, last_start+self.num_frames, total))
-        return clips
-
-    def process_clip(self, clip):
-
-        target_size = self.clip_params['fine_size']        
-        t, _, h, w = clip.shape
-        max_size, min_size = max(h, w), min(h, w)
-        pad_height = True if h < w else False
-        pad_size = (max_size - min_size) // 2
-        if pad_height:
-            pad_input = [0, pad_size] * 2                   # for the left, top, right and bottom borders respectively
-        else:
-            pad_input = [pad_size, 0] * 2
-        
-        transform_pad = T.Pad(pad_input, fill=0)
-        clip = transform_pad(clip)        # square image
-        h_pad, w_pad = clip.shape[-2:]
-        clip = F.interpolate(clip, size=(target_size, target_size), mode='bilinear')#.squeeze(0)
-
-        return clip, h, w
-
-    def get_clip_with_idxs(self, vid_path, start):
-        
-        vr = VideoReader(vid_path, ctx=cpu(0))
-        total = len(vr)
-        end = start + self.num_frames
-
-        if end > total:
-            indices = list(range(start, total))
-            clip = vr.get_batch(indices).permute(0, 3, 1, 2).float() / 255.0
-            pad_count = self.num_frames - clip.shape[0]
-            pad = torch.zeros((pad_count, *clip.shape[1:]), dtype=clip.dtype)
-            clip = torch.cat([clip, pad], dim=0)
-        else:
-            clip = vr.get_batch(range(start, end)).permute(0, 3, 1, 2).float() / 255.0
-        
-        return clip
-    
-    def __len__(self):
-        return len(self.clips)
-
-    def __getitem__(self, idx):
-        
-        vid_path, query_path, start, total = self.clips[idx]
-        clip = self.get_clip_with_idxs(vid_path, start)
-        clip, h, w = self.process_clip(clip)
-            
-        query_images = [Image.open(img_path).convert("RGB") for img_path in query_path]
-        query_images = [self.transform(img) for img in query_images]
-        query_images = torch.stack(query_images, dim=0)
-        # query_images = Image.open(query_path[0]).convert("RGB")
-        # query_images = self.transform(query_images)
-        
-        results = {
-            'video_id': vid_path.split('/')[-2],
-            'clip': clip,
-            'clip_idxs': torch.arange(start, start+self.num_frames),
-            'query_images': query_images,
-            'clip_h': h,
-            'clip_w': w,
-            'total_frames': total
-        }
-        
-        return results  # shape [T, C, H, W]
-
-def sample_frames_balance(num_frames, frame_interval, sample, sampling='rand'):
+def sample_frames_balance(num_frames, query_frame, frame_interval, sample, sampling='rand'):
     '''
-    sample clips with balanced negative and positive samples
+    sample clips with balanced negative and postive samples
     params:
         num_frames: total number of frames to sample
         query_frame: query time index
@@ -350,8 +308,7 @@ def sample_frames_balance(num_frames, frame_interval, sample, sampling='rand'):
         frame_idxs: length [num_frames]
     '''
     required_len = (num_frames - 1) * frame_interval + 1
-    valid_idx = np.random.choice(range(len(sample["response_track_valid_range"])))
-    anno_valid_idx_range = sample["response_track_valid_range"][valid_idx]
+    anno_valid_idx_range = sample["response_track_valid_range"]
     anno_len = anno_valid_idx_range[1] - anno_valid_idx_range[0] + 1
     
     if anno_len <= required_len:
@@ -379,8 +336,9 @@ def sample_frames_balance(num_frames, frame_interval, sample, sampling='rand'):
     else:
         num_addition = anno_len - required_len
         start = random.choice(range(num_addition))
-        frame_idxs_pos = [anno_valid_idx_range[0] + start + it * frame_interval for it in range(num_frames)]
+        frame_idxs_pos = [anno_valid_idx_range[0] + start + it for it in range(num_frames)]
     return frame_idxs_pos
+
 
 decord.bridge.set_bridge("torch")
 
@@ -388,16 +346,17 @@ def read_frames_decord_balance(video_path, num_frames, frame_interval, sample, s
     video_reader = decord.VideoReader(video_path, num_threads=1)
     vlen = len(video_reader)
     origin_fps = int(video_reader.get_avg_fps())
-    gt_fps = int(sample.get('clip_fps', 25))
-    down_rate = origin_fps // gt_fps if gt_fps > 0 else 1
-    frame_idxs = sample_frames_balance(num_frames, frame_interval, sample, sampling)      # downsampled fps idxs, used to get bbox annotation
+    gt_fps = int(sample['clip_fps'])
+    down_rate = origin_fps // gt_fps
+    query_frame = int(sample['query_frame'])
+    frame_idxs = sample_frames_balance(num_frames, query_frame, frame_interval, sample, sampling)      # downsampled fps idxs, used to get bbox annotation
+    before_query = torch.tensor(frame_idxs) < query_frame
     frame_idxs_origin = [min(it * down_rate, vlen - 1) for it in frame_idxs]        # origin clip fps frame idxs
     #video_reader.skip_frames(1)
     frames = video_reader.get_batch(frame_idxs_origin)
     frames = frames.float() / 255
     frames = frames.permute(0, 3, 1, 2)
-    return frames, frame_idxs
-
+    return frames, frame_idxs, before_query
 
 def get_bbox_from_data(data):
     # BoxMode.XYXY_ABS

@@ -1,0 +1,1014 @@
+2025-11-13 18:39:33,406 Namespace(cfg='/home/admin/config/train.yaml', eval=False, local_rank=-1)
+2025-11-13 18:39:33,407 {'dataset': {'clip_num_frames': 30,
+             'clip_num_frames_val': 30,
+             'clip_reader': 'decord_random',
+             'clip_reader_val': 'decord_balance',
+             'clip_sampling': 'rand',
+             'clip_size_coarse': 448,
+             'clip_size_fine': 448,
+             'frame_interval': 1,
+             'name': 'zalo_ego',
+             'name_val': 'zalo_ego',
+             'padding_value': 'zero',
+             'query_padding': False,
+             'query_size': 448,
+             'query_square': True,
+             'test_dir': '/home/admin/aeroeyes/public_test/public_test/samples',
+             'train_dir': '/home/admin/aeroeyes/observing/train/samples',
+             'train_ego_dir': '/home/admin/train-ego4d/train_ego4d/samples'},
+ 'debug': False,
+ 'eval_vis_freq': 100,
+ 'exp_group': 'vq2d',
+ 'exp_name': 'train',
+ 'inference_cache_path': '',
+ 'log_dir': './log',
+ 'loss': {'prob_bce_weight': [1.0, 1.0],
+          'weight_bbox': 1.0,
+          'weight_bbox_center': 1.0,
+          'weight_bbox_giou': 5.0,
+          'weight_bbox_hw': 1.0,
+          'weight_bbox_ratio': 1.0,
+          'weight_prob': 2.0},
+ 'model': {'backbone_name': 'dinov2',
+           'backbone_type': 'vits14',
+           'bakcbone_use_mae_weight': False,
+           'cpt_path': '',
+           'fix_backbone': True,
+           'num_transformer': 3,
+           'pe_transformer': 'zero',
+           'positive_threshold': 0.2,
+           'positive_topk': 5,
+           'resolution_anchor_feat': 16,
+           'resolution_transformer': 8,
+           'type_transformer': 'global',
+           'window_transformer': 5},
+ 'output_dir': './output/',
+ 'print_freq': 18,
+ 'seed': 42,
+ 'test': {'batch_size': 8, 'compute_metric': True, 'fg_threshold': 0.5},
+ 'train': {'accumulation_step': 1,
+           'aug_affine_degree': 90,
+           'aug_affine_scale_max': 1.2,
+           'aug_affine_scale_min': 0.8,
+           'aug_affine_shear_max': 15.0,
+           'aug_affine_shear_min': -15.0,
+           'aug_affine_translate': 0.2,
+           'aug_brightness': 0.3,
+           'aug_clip': True,
+           'aug_clip_iter': -1,
+           'aug_contrast': 0.3,
+           'aug_crop_ratio_max': 1.2,
+           'aug_crop_ratio_min': 0.8,
+           'aug_crop_scale': 0.8,
+           'aug_prob_affine': 1.0,
+           'aug_prob_color': 1.0,
+           'aug_prob_crop': 1.0,
+           'aug_prob_flip': 0.5,
+           'aug_query': True,
+           'aug_saturation': 0.2,
+           'batch_size': 16,
+           'grad_max': 20.0,
+           'lr': 0.0003,
+           'resume': True,
+           'schedualr_milestones': [7000, 14000, 20000, 25000],
+           'schedular_gamma': 0.3,
+           'schedular_warmup_iter': 180,
+           'total_iteration': 3600,
+           'use_hnm': False,
+           'use_query_roi': False,
+           'weight_decay': 0.005},
+ 'vis_freq': 1000,
+ 'workers': 16}
+2025-11-13 18:39:35,259 using MLP layer as FFN
+2025-11-13 18:40:56,127 Epoch 0, Iter 0, rank 0, Time: data 65.337s, pred 6.460s, all 71.875s (71.875s), Loss: loss_bbox_center: 0.048097 (0.048097), loss_bbox_hw: 0.046891 (0.046891), loss_bbox_giou: 0.788949 (0.788949), loss_prob: 0.043789 (0.043789)
+2025-11-13 18:42:58,898 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,901 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,909 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,915 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,921 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,927 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,931 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,939 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,945 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,951 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,959 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,963 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,971 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,978 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,984 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,991 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:58,994 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:59,001 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:59,006 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:42:59,011 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:43:00,486 Rank 0, best iou: 0.0 (current 0.0), best probability accuracy: 0.3182098865509033 (current 0.3182098865509033)
+2025-11-13 18:44:02,243 Epoch 1, Iter 18, rank 0, Time: data 60.051s, pred 1.161s, all 61.214s (61.214s), Loss: loss_bbox_center: 0.061358 (0.061358), loss_bbox_hw: 0.058909 (0.058909), loss_bbox_giou: 0.737013 (0.737013), loss_prob: 0.029779 (0.029779)
+2025-11-13 18:45:48,517 Epoch 2, Iter 36, rank 0, Time: data 62.517s, pred 1.163s, all 63.682s (63.682s), Loss: loss_bbox_center: 0.038931 (0.038931), loss_bbox_hw: 0.034980 (0.034980), loss_bbox_giou: 0.706490 (0.706490), loss_prob: 0.011141 (0.011141)
+2025-11-13 18:47:32,817 Epoch 3, Iter 54, rank 0, Time: data 60.465s, pred 1.165s, all 61.633s (61.633s), Loss: loss_bbox_center: 0.040316 (0.040316), loss_bbox_hw: 0.050459 (0.050459), loss_bbox_giou: 0.637165 (0.637165), loss_prob: 0.005085 (0.005085)
+2025-11-13 18:48:59,465 Epoch 4, Iter 72, rank 0, Time: data 44.774s, pred 1.215s, all 45.992s (45.992s), Loss: loss_bbox_center: 0.026436 (0.026436), loss_bbox_hw: 0.036002 (0.036002), loss_bbox_giou: 0.759678 (0.759678), loss_prob: 0.003236 (0.003236)
+2025-11-13 18:50:54,462 Epoch 5, Iter 90, rank 0, Time: data 58.273s, pred 1.187s, all 59.462s (59.462s), Loss: loss_bbox_center: 0.024239 (0.024239), loss_bbox_hw: 0.026101 (0.026101), loss_bbox_giou: 0.609979 (0.609979), loss_prob: 0.003558 (0.003558)
+2025-11-13 18:52:55,768 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,773 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,779 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,784 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,789 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,796 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,801 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,806 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,812 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,816 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,824 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,828 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,838 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,849 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,855 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,862 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,869 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:55,875 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 18:52:56,823 Rank 0, best iou: 0.0 (current 0.0), best probability accuracy: 0.31975311040878296 (current 0.31975311040878296)
+2025-11-13 18:53:58,529 Epoch 6, Iter 108, rank 0, Time: data 59.995s, pred 1.162s, all 61.159s (61.159s), Loss: loss_bbox_center: 0.028136 (0.028136), loss_bbox_hw: 0.038311 (0.038311), loss_bbox_giou: 0.635797 (0.635797), loss_prob: 0.003958 (0.003958)
+2025-11-13 18:55:38,111 Epoch 7, Iter 126, rank 0, Time: data 60.403s, pred 1.161s, all 61.566s (61.566s), Loss: loss_bbox_center: 0.023050 (0.023050), loss_bbox_hw: 0.027845 (0.027845), loss_bbox_giou: 0.652140 (0.652140), loss_prob: 0.002813 (0.002813)
+2025-11-13 18:57:10,942 Epoch 8, Iter 144, rank 0, Time: data 53.611s, pred 1.245s, all 54.859s (54.859s), Loss: loss_bbox_center: 0.026219 (0.026219), loss_bbox_hw: 0.026824 (0.026824), loss_bbox_giou: 0.551360 (0.551360), loss_prob: 0.004394 (0.004394)
+2025-11-13 18:59:02,298 Epoch 9, Iter 162, rank 0, Time: data 59.613s, pred 1.224s, all 60.841s (60.841s), Loss: loss_bbox_center: 0.020118 (0.020118), loss_bbox_hw: 0.023842 (0.023842), loss_bbox_giou: 0.637383 (0.637383), loss_prob: 0.002957 (0.002957)
+2025-11-13 19:00:45,689 Epoch 10, Iter 180, rank 0, Time: data 57.307s, pred 1.164s, all 58.474s (58.474s), Loss: loss_bbox_center: 0.019174 (0.019174), loss_bbox_hw: 0.022563 (0.022563), loss_bbox_giou: 0.650260 (0.650260), loss_prob: 0.002305 (0.002305)
+2025-11-13 19:02:54,444 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,449 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,457 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,464 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,470 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,477 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,481 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,486 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,493 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,498 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,507 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,512 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,522 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,529 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,543 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,550 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,557 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,562 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:54,567 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:02:55,523 Rank 0, best iou: 0.0 (current 0.0), best probability accuracy: 0.32098767161369324 (current 0.32098767161369324)
+2025-11-13 19:04:01,027 Epoch 11, Iter 198, rank 0, Time: data 63.794s, pred 1.161s, all 64.957s (64.957s), Loss: loss_bbox_center: 0.019486 (0.019486), loss_bbox_hw: 0.021963 (0.021963), loss_bbox_giou: 0.472245 (0.472245), loss_prob: 0.004357 (0.004357)
+2025-11-13 19:05:41,138 Epoch 12, Iter 216, rank 0, Time: data 59.572s, pred 1.178s, all 60.753s (60.753s), Loss: loss_bbox_center: 0.030342 (0.030342), loss_bbox_hw: 0.025774 (0.025774), loss_bbox_giou: 0.611295 (0.611295), loss_prob: 0.003835 (0.003835)
+2025-11-13 19:07:31,757 Epoch 13, Iter 234, rank 0, Time: data 68.150s, pred 1.175s, all 69.327s (69.327s), Loss: loss_bbox_center: 0.022213 (0.022213), loss_bbox_hw: 0.021244 (0.021244), loss_bbox_giou: 0.447880 (0.447880), loss_prob: 0.004840 (0.004840)
+2025-11-13 19:09:16,727 Epoch 14, Iter 252, rank 0, Time: data 61.088s, pred 1.162s, all 62.252s (62.252s), Loss: loss_bbox_center: 0.015296 (0.015296), loss_bbox_hw: 0.014979 (0.014979), loss_bbox_giou: 0.411687 (0.411687), loss_prob: 0.002986 (0.002986)
+2025-11-13 19:11:07,240 Epoch 15, Iter 270, rank 0, Time: data 58.895s, pred 1.175s, all 60.073s (60.073s), Loss: loss_bbox_center: 0.017842 (0.017842), loss_bbox_hw: 0.021097 (0.021097), loss_bbox_giou: 0.425709 (0.425709), loss_prob: 0.003564 (0.003564)
+2025-11-13 19:13:08,694 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,701 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,708 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,714 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,722 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,732 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,738 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,746 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,752 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,758 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,767 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,771 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,780 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,787 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,801 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:08,807 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:13:09,874 Rank 0, best iou: 0.0942823588848114 (current 0.0942823588848114), best probability accuracy: 0.5777778029441833 (current 0.5777778029441833)
+2025-11-13 19:14:09,448 Epoch 16, Iter 288, rank 0, Time: data 57.791s, pred 1.175s, all 58.969s (58.969s), Loss: loss_bbox_center: 0.047613 (0.047613), loss_bbox_hw: 0.053717 (0.053717), loss_bbox_giou: 0.562824 (0.562824), loss_prob: 0.003136 (0.003136)
+2025-11-13 19:15:56,054 Epoch 17, Iter 306, rank 0, Time: data 61.181s, pred 1.192s, all 62.376s (62.376s), Loss: loss_bbox_center: 0.015866 (0.015866), loss_bbox_hw: 0.018849 (0.018849), loss_bbox_giou: 0.361777 (0.361777), loss_prob: 0.002981 (0.002981)
+2025-11-13 19:17:30,483 Epoch 18, Iter 324, rank 0, Time: data 54.225s, pred 1.231s, all 55.459s (55.459s), Loss: loss_bbox_center: 0.017857 (0.017857), loss_bbox_hw: 0.021244 (0.021244), loss_bbox_giou: 0.511039 (0.511039), loss_prob: 0.004044 (0.004044)
+2025-11-13 19:19:18,475 Epoch 19, Iter 342, rank 0, Time: data 59.578s, pred 1.235s, all 60.816s (60.816s), Loss: loss_bbox_center: 0.012730 (0.012730), loss_bbox_hw: 0.012722 (0.012722), loss_bbox_giou: 0.417807 (0.417807), loss_prob: 0.002575 (0.002575)
+2025-11-13 19:21:00,766 Epoch 20, Iter 360, rank 0, Time: data 60.634s, pred 1.310s, all 61.947s (61.947s), Loss: loss_bbox_center: 0.018560 (0.018560), loss_bbox_hw: 0.025961 (0.025961), loss_bbox_giou: 0.494802 (0.494802), loss_prob: 0.002331 (0.002331)
+2025-11-13 19:22:58,244 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,250 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,257 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,275 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,279 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,287 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,293 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,300 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,310 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,314 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,323 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,331 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,338 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,350 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,354 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,365 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,372 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:58,380 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:22:59,348 Rank 0, best iou: 0.10391023755073547 (current 0.10391023755073547), best probability accuracy: 0.5777778029441833 (current 0.5560185313224792)
+2025-11-13 19:24:04,843 Epoch 21, Iter 378, rank 0, Time: data 63.777s, pred 1.177s, all 64.956s (64.956s), Loss: loss_bbox_center: 0.014811 (0.014811), loss_bbox_hw: 0.013159 (0.013159), loss_bbox_giou: 0.379481 (0.379481), loss_prob: 0.002473 (0.002473)
+2025-11-13 19:25:48,303 Epoch 22, Iter 396, rank 0, Time: data 63.730s, pred 1.185s, all 64.917s (64.917s), Loss: loss_bbox_center: 0.016545 (0.016545), loss_bbox_hw: 0.018281 (0.018281), loss_bbox_giou: 0.404670 (0.404670), loss_prob: 0.002750 (0.002750)
+2025-11-13 19:27:19,217 Epoch 23, Iter 414, rank 0, Time: data 47.265s, pred 1.230s, all 48.498s (48.498s), Loss: loss_bbox_center: 0.015023 (0.015023), loss_bbox_hw: 0.015473 (0.015473), loss_bbox_giou: 0.328057 (0.328057), loss_prob: 0.002030 (0.002030)
+2025-11-13 19:29:15,101 Epoch 24, Iter 432, rank 0, Time: data 59.789s, pred 1.224s, all 61.015s (61.015s), Loss: loss_bbox_center: 0.013460 (0.013460), loss_bbox_hw: 0.014875 (0.014875), loss_bbox_giou: 0.339579 (0.339579), loss_prob: 0.003217 (0.003217)
+2025-11-13 19:30:51,620 Epoch 25, Iter 450, rank 0, Time: data 55.887s, pred 1.218s, all 57.108s (57.108s), Loss: loss_bbox_center: 0.012328 (0.012328), loss_bbox_hw: 0.011860 (0.011860), loss_bbox_giou: 0.400593 (0.400593), loss_prob: 0.001716 (0.001716)
+2025-11-13 19:33:02,346 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,352 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,375 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,381 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,390 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,395 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,403 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,407 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,412 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,417 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,421 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,429 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,433 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,438 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,443 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:02,448 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:33:03,552 Rank 0, best iou: 0.13772286474704742 (current 0.13772286474704742), best probability accuracy: 0.5777778029441833 (current 0.5348765254020691)
+2025-11-13 19:34:01,226 Epoch 26, Iter 468, rank 0, Time: data 55.868s, pred 1.225s, all 57.097s (57.097s), Loss: loss_bbox_center: 0.024189 (0.024189), loss_bbox_hw: 0.022729 (0.022729), loss_bbox_giou: 0.482698 (0.482698), loss_prob: 0.001732 (0.001732)
+2025-11-13 19:35:46,813 Epoch 27, Iter 486, rank 0, Time: data 59.823s, pred 1.208s, all 61.035s (61.035s), Loss: loss_bbox_center: 0.013655 (0.013655), loss_bbox_hw: 0.013859 (0.013859), loss_bbox_giou: 0.433750 (0.433750), loss_prob: 0.001663 (0.001663)
+2025-11-13 19:37:32,940 Epoch 28, Iter 504, rank 0, Time: data 58.268s, pred 1.563s, all 59.833s (59.833s), Loss: loss_bbox_center: 0.011572 (0.011572), loss_bbox_hw: 0.011906 (0.011906), loss_bbox_giou: 0.355373 (0.355373), loss_prob: 0.001833 (0.001833)
+2025-11-13 19:39:17,017 Epoch 29, Iter 522, rank 0, Time: data 57.940s, pred 1.231s, all 59.174s (59.174s), Loss: loss_bbox_center: 0.016764 (0.016764), loss_bbox_hw: 0.017539 (0.017539), loss_bbox_giou: 0.367859 (0.367859), loss_prob: 0.002458 (0.002458)
+2025-11-13 19:41:00,128 Epoch 30, Iter 540, rank 0, Time: data 60.051s, pred 1.214s, all 61.268s (61.268s), Loss: loss_bbox_center: 0.012629 (0.012629), loss_bbox_hw: 0.013290 (0.013290), loss_bbox_giou: 0.427296 (0.427296), loss_prob: 0.002041 (0.002041)
+2025-11-13 19:43:01,883 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:43:01,888 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:43:01,897 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:43:01,905 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:43:01,908 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:43:01,913 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:43:01,917 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:43:01,920 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:43:01,927 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:43:01,930 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:43:01,935 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:43:01,947 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:43:01,950 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:43:02,710 Rank 0, best iou: 0.14698165655136108 (current 0.14698165655136108), best probability accuracy: 0.5929012894630432 (current 0.5929012894630432)
+2025-11-13 19:43:54,645 Epoch 31, Iter 558, rank 0, Time: data 50.118s, pred 1.236s, all 51.357s (51.357s), Loss: loss_bbox_center: 0.010671 (0.010671), loss_bbox_hw: 0.011818 (0.011818), loss_bbox_giou: 0.416920 (0.416920), loss_prob: 0.001568 (0.001568)
+2025-11-13 19:45:44,268 Epoch 32, Iter 576, rank 0, Time: data 61.069s, pred 1.212s, all 62.283s (62.283s), Loss: loss_bbox_center: 0.012290 (0.012290), loss_bbox_hw: 0.010763 (0.010763), loss_bbox_giou: 0.362439 (0.362439), loss_prob: 0.001650 (0.001650)
+2025-11-13 19:47:30,583 Epoch 33, Iter 594, rank 0, Time: data 63.369s, pred 1.197s, all 64.569s (64.569s), Loss: loss_bbox_center: 0.013197 (0.013197), loss_bbox_hw: 0.011137 (0.011137), loss_bbox_giou: 0.344737 (0.344737), loss_prob: 0.001964 (0.001964)
+2025-11-13 19:49:19,449 Epoch 34, Iter 612, rank 0, Time: data 64.773s, pred 1.201s, all 65.977s (65.977s), Loss: loss_bbox_center: 0.009310 (0.009310), loss_bbox_hw: 0.008637 (0.008637), loss_bbox_giou: 0.356460 (0.356460), loss_prob: 0.001521 (0.001521)
+2025-11-13 19:51:00,640 Epoch 35, Iter 630, rank 0, Time: data 61.142s, pred 1.224s, all 62.368s (62.368s), Loss: loss_bbox_center: 0.010807 (0.010807), loss_bbox_hw: 0.011287 (0.011287), loss_bbox_giou: 0.345596 (0.345596), loss_prob: 0.002014 (0.002014)
+2025-11-13 19:53:09,376 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:53:09,381 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:53:09,386 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:53:09,394 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:53:09,397 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:53:09,404 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:53:09,408 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:53:09,426 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:53:09,431 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:53:09,452 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:53:09,457 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:53:09,467 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:53:09,471 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:53:09,476 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 19:53:10,193 Rank 0, best iou: 0.1923622488975525 (current 0.1923622488975525), best probability accuracy: 0.6168210506439209 (current 0.6168210506439209)
+2025-11-13 19:53:59,517 Epoch 36, Iter 648, rank 0, Time: data 47.434s, pred 1.320s, all 48.757s (48.757s), Loss: loss_bbox_center: 0.009717 (0.009717), loss_bbox_hw: 0.014038 (0.014038), loss_bbox_giou: 0.279729 (0.279729), loss_prob: 0.001238 (0.001238)
+2025-11-13 19:55:48,357 Epoch 37, Iter 666, rank 0, Time: data 53.471s, pred 1.305s, all 54.780s (54.780s), Loss: loss_bbox_center: 0.021591 (0.021591), loss_bbox_hw: 0.018245 (0.018245), loss_bbox_giou: 0.330929 (0.330929), loss_prob: 0.001902 (0.001902)
+2025-11-13 19:57:38,789 Epoch 38, Iter 684, rank 0, Time: data 57.303s, pred 1.220s, all 58.525s (58.525s), Loss: loss_bbox_center: 0.018825 (0.018825), loss_bbox_hw: 0.019369 (0.019369), loss_bbox_giou: 0.318080 (0.318080), loss_prob: 0.001937 (0.001937)
+2025-11-13 19:59:21,978 Epoch 39, Iter 702, rank 0, Time: data 57.573s, pred 1.222s, all 58.797s (58.797s), Loss: loss_bbox_center: 0.008939 (0.008939), loss_bbox_hw: 0.008932 (0.008932), loss_bbox_giou: 0.298575 (0.298575), loss_prob: 0.001671 (0.001671)
+2025-11-13 20:01:02,362 Epoch 40, Iter 720, rank 0, Time: data 59.978s, pred 1.210s, all 61.190s (61.190s), Loss: loss_bbox_center: 0.018416 (0.018416), loss_bbox_hw: 0.015417 (0.015417), loss_bbox_giou: 0.381668 (0.381668), loss_prob: 0.001929 (0.001929)
+2025-11-13 20:02:59,546 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:02:59,550 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:02:59,555 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:02:59,560 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:02:59,565 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:02:59,571 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:02:59,575 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:02:59,593 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:02:59,597 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:02:59,601 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:02:59,607 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:02:59,611 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:02:59,618 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:02:59,621 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:03:00,629 Rank 0, best iou: 0.21854038536548615 (current 0.21854038536548615), best probability accuracy: 0.6473765969276428 (current 0.6473765969276428)
+2025-11-13 20:04:01,363 Epoch 41, Iter 738, rank 0, Time: data 58.984s, pred 1.205s, all 60.192s (60.192s), Loss: loss_bbox_center: 0.010797 (0.010797), loss_bbox_hw: 0.012411 (0.012411), loss_bbox_giou: 0.318448 (0.318448), loss_prob: 0.001681 (0.001681)
+2025-11-13 20:05:47,559 Epoch 42, Iter 756, rank 0, Time: data 62.007s, pred 1.194s, all 63.203s (63.203s), Loss: loss_bbox_center: 0.009270 (0.009270), loss_bbox_hw: 0.009319 (0.009319), loss_bbox_giou: 0.334260 (0.334260), loss_prob: 0.001116 (0.001116)
+2025-11-13 20:07:15,112 Epoch 43, Iter 774, rank 0, Time: data 46.681s, pred 1.312s, all 47.997s (47.997s), Loss: loss_bbox_center: 0.017484 (0.017484), loss_bbox_hw: 0.023160 (0.023160), loss_bbox_giou: 0.311661 (0.311661), loss_prob: 0.001916 (0.001916)
+2025-11-13 20:09:03,368 Epoch 44, Iter 792, rank 0, Time: data 57.065s, pred 1.249s, all 58.316s (58.316s), Loss: loss_bbox_center: 0.010497 (0.010497), loss_bbox_hw: 0.010872 (0.010872), loss_bbox_giou: 0.319607 (0.319607), loss_prob: 0.001790 (0.001790)
+2025-11-13 20:10:55,578 Epoch 45, Iter 810, rank 0, Time: data 66.058s, pred 1.214s, all 67.274s (67.274s), Loss: loss_bbox_center: 0.014888 (0.014888), loss_bbox_hw: 0.010769 (0.010769), loss_bbox_giou: 0.325509 (0.325509), loss_prob: 0.002291 (0.002291)
+2025-11-13 20:12:49,793 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,798 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,803 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,808 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,812 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,819 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,822 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,831 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,835 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,841 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,844 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,850 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,854 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,862 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,866 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,871 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:49,875 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:12:50,630 Rank 0, best iou: 0.2242068648338318 (current 0.2242068648338318), best probability accuracy: 0.6913581490516663 (current 0.6913581490516663)
+2025-11-13 20:13:53,608 Epoch 46, Iter 828, rank 0, Time: data 61.234s, pred 1.203s, all 62.439s (62.439s), Loss: loss_bbox_center: 0.010689 (0.010689), loss_bbox_hw: 0.009850 (0.009850), loss_bbox_giou: 0.322720 (0.322720), loss_prob: 0.001635 (0.001635)
+2025-11-13 20:15:33,862 Epoch 47, Iter 846, rank 0, Time: data 59.102s, pred 1.210s, all 60.315s (60.315s), Loss: loss_bbox_center: 0.012122 (0.012122), loss_bbox_hw: 0.011786 (0.011786), loss_bbox_giou: 0.361038 (0.361038), loss_prob: 0.001134 (0.001134)
+2025-11-13 20:17:20,490 Epoch 48, Iter 864, rank 0, Time: data 61.684s, pred 1.236s, all 62.923s (62.923s), Loss: loss_bbox_center: 0.009854 (0.009854), loss_bbox_hw: 0.010767 (0.010767), loss_bbox_giou: 0.358485 (0.358485), loss_prob: 0.001846 (0.001846)
+2025-11-13 20:19:04,305 Epoch 49, Iter 882, rank 0, Time: data 63.344s, pred 1.228s, all 64.574s (64.574s), Loss: loss_bbox_center: 0.008109 (0.008109), loss_bbox_hw: 0.008514 (0.008514), loss_bbox_giou: 0.297066 (0.297066), loss_prob: 0.001146 (0.001146)
+2025-11-13 20:20:41,831 Epoch 50, Iter 900, rank 0, Time: data 57.040s, pred 1.264s, all 58.307s (58.307s), Loss: loss_bbox_center: 0.010745 (0.010745), loss_bbox_hw: 0.009807 (0.009807), loss_bbox_giou: 0.310085 (0.310085), loss_prob: 0.001312 (0.001312)
+2025-11-13 20:22:42,463 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:42,467 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:42,496 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:42,499 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:42,509 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:42,516 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:42,520 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:42,527 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:42,529 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:42,537 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:42,553 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:42,557 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:42,566 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:42,572 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:42,578 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:22:43,266 Rank 0, best iou: 0.26267990469932556 (current 0.26267990469932556), best probability accuracy: 0.6913581490516663 (current 0.6913581490516663)
+2025-11-13 20:23:41,989 Epoch 51, Iter 918, rank 0, Time: data 56.943s, pred 1.232s, all 58.178s (58.178s), Loss: loss_bbox_center: 0.014417 (0.014417), loss_bbox_hw: 0.012523 (0.012523), loss_bbox_giou: 0.352370 (0.352370), loss_prob: 0.001375 (0.001375)
+2025-11-13 20:25:27,358 Epoch 52, Iter 936, rank 0, Time: data 59.729s, pred 1.221s, all 60.952s (60.952s), Loss: loss_bbox_center: 0.010422 (0.010422), loss_bbox_hw: 0.011285 (0.011285), loss_bbox_giou: 0.258763 (0.258763), loss_prob: 0.001840 (0.001840)
+2025-11-13 20:27:06,874 Epoch 53, Iter 954, rank 0, Time: data 59.504s, pred 1.198s, all 60.704s (60.704s), Loss: loss_bbox_center: 0.014391 (0.014391), loss_bbox_hw: 0.011435 (0.011435), loss_bbox_giou: 0.353744 (0.353744), loss_prob: 0.001892 (0.001892)
+2025-11-13 20:28:46,280 Epoch 54, Iter 972, rank 0, Time: data 59.008s, pred 1.217s, all 60.227s (60.227s), Loss: loss_bbox_center: 0.009562 (0.009562), loss_bbox_hw: 0.007700 (0.007700), loss_bbox_giou: 0.291042 (0.291042), loss_prob: 0.001368 (0.001368)
+2025-11-13 20:30:30,161 Epoch 55, Iter 990, rank 0, Time: data 54.837s, pred 1.256s, all 56.096s (56.096s), Loss: loss_bbox_center: 0.009102 (0.009102), loss_bbox_hw: 0.011014 (0.011014), loss_bbox_giou: 0.269305 (0.269305), loss_prob: 0.001279 (0.001279)
+2025-11-13 20:32:33,133 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,137 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,143 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,147 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,151 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,158 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,161 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,168 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,174 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,179 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,186 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,189 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,195 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,200 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,211 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,216 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,233 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:32:33,978 Rank 0, best iou: 0.26267990469932556 (current 0.2543180584907532), best probability accuracy: 0.6961419582366943 (current 0.6961419582366943)
+2025-11-13 20:33:40,881 Epoch 56, Iter 1008, rank 0, Time: data 65.145s, pred 1.216s, all 66.362s (66.362s), Loss: loss_bbox_center: 0.011409 (0.011409), loss_bbox_hw: 0.014299 (0.014299), loss_bbox_giou: 0.273230 (0.273230), loss_prob: 0.001920 (0.001920)
+2025-11-13 20:35:16,087 Epoch 57, Iter 1026, rank 0, Time: data 54.911s, pred 1.217s, all 56.131s (56.131s), Loss: loss_bbox_center: 0.007784 (0.007784), loss_bbox_hw: 0.008324 (0.008324), loss_bbox_giou: 0.208926 (0.208926), loss_prob: 0.001074 (0.001074)
+2025-11-13 20:37:01,681 Epoch 58, Iter 1044, rank 0, Time: data 59.825s, pred 1.213s, all 61.040s (61.040s), Loss: loss_bbox_center: 0.011247 (0.011247), loss_bbox_hw: 0.011860 (0.011860), loss_bbox_giou: 0.269811 (0.269811), loss_prob: 0.001303 (0.001303)
+2025-11-13 20:38:50,230 Epoch 59, Iter 1062, rank 0, Time: data 62.142s, pred 1.271s, all 63.416s (63.416s), Loss: loss_bbox_center: 0.005936 (0.005936), loss_bbox_hw: 0.007108 (0.007108), loss_bbox_giou: 0.249574 (0.249574), loss_prob: 0.001446 (0.001446)
+2025-11-13 20:40:25,481 Epoch 60, Iter 1080, rank 0, Time: data 54.847s, pred 1.212s, all 56.062s (56.062s), Loss: loss_bbox_center: 0.009852 (0.009852), loss_bbox_hw: 0.010880 (0.010880), loss_bbox_giou: 0.340180 (0.340180), loss_prob: 0.001168 (0.001168)
+2025-11-13 20:42:27,276 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:27,282 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:27,290 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:27,297 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:27,301 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:27,307 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:27,310 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:27,318 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:27,332 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:27,336 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:27,359 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:27,362 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:27,367 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:27,371 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:27,375 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:42:28,136 Rank 0, best iou: 0.2675248384475708 (current 0.2675248384475708), best probability accuracy: 0.6961419582366943 (current 0.6328704357147217)
+2025-11-13 20:43:24,270 Epoch 61, Iter 1098, rank 0, Time: data 54.291s, pred 1.299s, all 55.593s (55.593s), Loss: loss_bbox_center: 0.012072 (0.012072), loss_bbox_hw: 0.013287 (0.013287), loss_bbox_giou: 0.326082 (0.326082), loss_prob: 0.001463 (0.001463)
+2025-11-13 20:45:15,508 Epoch 62, Iter 1116, rank 0, Time: data 62.083s, pred 1.227s, all 63.313s (63.313s), Loss: loss_bbox_center: 0.008374 (0.008374), loss_bbox_hw: 0.009235 (0.009235), loss_bbox_giou: 0.176495 (0.176495), loss_prob: 0.002096 (0.002096)
+2025-11-13 20:46:56,793 Epoch 63, Iter 1134, rank 0, Time: data 60.482s, pred 1.224s, all 61.709s (61.709s), Loss: loss_bbox_center: 0.010798 (0.010798), loss_bbox_hw: 0.010349 (0.010349), loss_bbox_giou: 0.253804 (0.253804), loss_prob: 0.001480 (0.001480)
+2025-11-13 20:48:35,204 Epoch 64, Iter 1152, rank 0, Time: data 55.070s, pred 1.263s, all 56.336s (56.336s), Loss: loss_bbox_center: 0.009130 (0.009130), loss_bbox_hw: 0.009337 (0.009337), loss_bbox_giou: 0.358502 (0.358502), loss_prob: 0.001104 (0.001104)
+2025-11-13 20:50:16,669 Epoch 65, Iter 1170, rank 0, Time: data 57.512s, pred 1.216s, all 58.731s (58.731s), Loss: loss_bbox_center: 0.010239 (0.010239), loss_bbox_hw: 0.010642 (0.010642), loss_bbox_giou: 0.271218 (0.271218), loss_prob: 0.001687 (0.001687)
+2025-11-13 20:52:13,248 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,251 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,256 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,269 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,274 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,281 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,286 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,295 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,298 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,303 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,307 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,315 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,319 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,324 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,328 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:13,332 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 20:52:14,125 Rank 0, best iou: 0.2984493672847748 (current 0.2984493672847748), best probability accuracy: 0.7015432715415955 (current 0.7015432715415955)
+2025-11-13 20:53:15,985 Epoch 66, Iter 1188, rank 0, Time: data 60.091s, pred 1.223s, all 61.317s (61.317s), Loss: loss_bbox_center: 0.009144 (0.009144), loss_bbox_hw: 0.009260 (0.009260), loss_bbox_giou: 0.209451 (0.209451), loss_prob: 0.001336 (0.001336)
+2025-11-13 20:54:55,024 Epoch 67, Iter 1206, rank 0, Time: data 57.125s, pred 1.571s, all 58.698s (58.698s), Loss: loss_bbox_center: 0.006178 (0.006178), loss_bbox_hw: 0.007051 (0.007051), loss_bbox_giou: 0.243002 (0.243002), loss_prob: 0.001077 (0.001077)
+2025-11-13 20:56:37,595 Epoch 68, Iter 1224, rank 0, Time: data 57.234s, pred 1.248s, all 58.485s (58.485s), Loss: loss_bbox_center: 0.009574 (0.009574), loss_bbox_hw: 0.010622 (0.010622), loss_bbox_giou: 0.250951 (0.250951), loss_prob: 0.001408 (0.001408)
+2025-11-13 20:58:23,424 Epoch 69, Iter 1242, rank 0, Time: data 62.362s, pred 1.209s, all 63.574s (63.574s), Loss: loss_bbox_center: 0.013309 (0.013309), loss_bbox_hw: 0.009594 (0.009594), loss_bbox_giou: 0.239633 (0.239633), loss_prob: 0.002038 (0.002038)
+2025-11-13 20:59:58,487 Epoch 70, Iter 1260, rank 0, Time: data 52.658s, pred 1.237s, all 53.898s (53.898s), Loss: loss_bbox_center: 0.007635 (0.007635), loss_bbox_hw: 0.007436 (0.007436), loss_bbox_giou: 0.312056 (0.312056), loss_prob: 0.000896 (0.000896)
+2025-11-13 21:02:01,147 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,151 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,155 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,159 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,164 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,169 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,173 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,178 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,183 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,187 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,195 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,197 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,205 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,210 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,215 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,222 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:01,226 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:02:02,038 Rank 0, best iou: 0.32796961069107056 (current 0.32796961069107056), best probability accuracy: 0.7183642983436584 (current 0.7183642983436584)
+2025-11-13 21:02:51,149 Epoch 71, Iter 1278, rank 0, Time: data 47.266s, pred 1.305s, all 48.574s (48.574s), Loss: loss_bbox_center: 0.009942 (0.009942), loss_bbox_hw: 0.008467 (0.008467), loss_bbox_giou: 0.297656 (0.297656), loss_prob: 0.001102 (0.001102)
+2025-11-13 21:04:43,593 Epoch 72, Iter 1296, rank 0, Time: data 61.627s, pred 1.233s, all 62.862s (62.862s), Loss: loss_bbox_center: 0.007613 (0.007613), loss_bbox_hw: 0.007970 (0.007970), loss_bbox_giou: 0.220744 (0.220744), loss_prob: 0.001096 (0.001096)
+2025-11-13 21:06:19,566 Epoch 73, Iter 1314, rank 0, Time: data 55.670s, pred 1.211s, all 56.884s (56.884s), Loss: loss_bbox_center: 0.011999 (0.011999), loss_bbox_hw: 0.008996 (0.008996), loss_bbox_giou: 0.243069 (0.243069), loss_prob: 0.001185 (0.001185)
+2025-11-13 21:07:57,182 Epoch 74, Iter 1332, rank 0, Time: data 53.171s, pred 1.297s, all 54.471s (54.471s), Loss: loss_bbox_center: 0.007105 (0.007105), loss_bbox_hw: 0.006918 (0.006918), loss_bbox_giou: 0.231474 (0.231474), loss_prob: 0.000840 (0.000840)
+2025-11-13 21:09:51,682 Epoch 75, Iter 1350, rank 0, Time: data 60.744s, pred 1.205s, all 61.952s (61.952s), Loss: loss_bbox_center: 0.007789 (0.007789), loss_bbox_hw: 0.008766 (0.008766), loss_bbox_giou: 0.286907 (0.286907), loss_prob: 0.001334 (0.001334)
+2025-11-13 21:11:44,149 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,153 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,158 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,162 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,166 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,173 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,176 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,181 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,185 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,189 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,196 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,200 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,208 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,214 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,219 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,225 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,228 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,232 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,236 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:44,240 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:11:45,006 Rank 0, best iou: 0.32796961069107056 (current 0.3277265429496765), best probability accuracy: 0.7237654328346252 (current 0.7237654328346252)
+2025-11-13 21:12:45,817 Epoch 76, Iter 1368, rank 0, Time: data 59.021s, pred 1.242s, all 60.267s (60.267s), Loss: loss_bbox_center: 0.006893 (0.006893), loss_bbox_hw: 0.007357 (0.007357), loss_bbox_giou: 0.204711 (0.204711), loss_prob: 0.001076 (0.001076)
+2025-11-13 21:14:29,175 Epoch 77, Iter 1386, rank 0, Time: data 61.377s, pred 1.210s, all 62.589s (62.589s), Loss: loss_bbox_center: 0.009622 (0.009622), loss_bbox_hw: 0.008105 (0.008105), loss_bbox_giou: 0.258845 (0.258845), loss_prob: 0.001236 (0.001236)
+2025-11-13 21:16:01,950 Epoch 78, Iter 1404, rank 0, Time: data 52.530s, pred 1.258s, all 53.791s (53.791s), Loss: loss_bbox_center: 0.008610 (0.008610), loss_bbox_hw: 0.007639 (0.007639), loss_bbox_giou: 0.262483 (0.262483), loss_prob: 0.001094 (0.001094)
+2025-11-13 21:17:42,014 Epoch 79, Iter 1422, rank 0, Time: data 53.930s, pred 1.243s, all 55.175s (55.175s), Loss: loss_bbox_center: 0.011860 (0.011860), loss_bbox_hw: 0.009122 (0.009122), loss_bbox_giou: 0.362453 (0.362453), loss_prob: 0.000787 (0.000787)
+2025-11-13 21:19:27,724 Epoch 80, Iter 1440, rank 0, Time: data 57.719s, pred 1.256s, all 58.978s (58.978s), Loss: loss_bbox_center: 0.007019 (0.007019), loss_bbox_hw: 0.007191 (0.007191), loss_bbox_giou: 0.197216 (0.197216), loss_prob: 0.000839 (0.000839)
+2025-11-13 21:21:28,375 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,381 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,402 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,409 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,419 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,424 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,430 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,437 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,441 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,448 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,453 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,459 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,467 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,471 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,478 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,483 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:28,489 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:21:29,476 Rank 0, best iou: 0.32796961069107056 (current 0.3269316256046295), best probability accuracy: 0.7237654328346252 (current 0.7111111879348755)
+2025-11-13 21:22:30,968 Epoch 81, Iter 1458, rank 0, Time: data 59.737s, pred 1.212s, all 60.951s (60.951s), Loss: loss_bbox_center: 0.008252 (0.008252), loss_bbox_hw: 0.007125 (0.007125), loss_bbox_giou: 0.197104 (0.197104), loss_prob: 0.000847 (0.000847)
+2025-11-13 21:24:06,653 Epoch 82, Iter 1476, rank 0, Time: data 51.274s, pred 1.290s, all 52.567s (52.567s), Loss: loss_bbox_center: 0.004620 (0.004620), loss_bbox_hw: 0.004471 (0.004471), loss_bbox_giou: 0.197356 (0.197356), loss_prob: 0.000967 (0.000967)
+2025-11-13 21:25:51,340 Epoch 83, Iter 1494, rank 0, Time: data 57.501s, pred 1.279s, all 58.782s (58.782s), Loss: loss_bbox_center: 0.006017 (0.006017), loss_bbox_hw: 0.006210 (0.006210), loss_bbox_giou: 0.211228 (0.211228), loss_prob: 0.000977 (0.000977)
+2025-11-13 21:27:29,717 Epoch 84, Iter 1512, rank 0, Time: data 54.327s, pred 1.324s, all 55.653s (55.653s), Loss: loss_bbox_center: 0.005017 (0.005017), loss_bbox_hw: 0.004765 (0.004765), loss_bbox_giou: 0.245267 (0.245267), loss_prob: 0.000710 (0.000710)
+2025-11-13 21:29:04,358 Epoch 85, Iter 1530, rank 0, Time: data 47.178s, pred 1.492s, all 48.674s (48.674s), Loss: loss_bbox_center: 0.009058 (0.009058), loss_bbox_hw: 0.008589 (0.008589), loss_bbox_giou: 0.294500 (0.294500), loss_prob: 0.000883 (0.000883)
+2025-11-13 21:31:15,782 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:15,786 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:15,794 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:15,800 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:15,805 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:15,812 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:15,815 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:15,836 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:15,839 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:15,845 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:15,849 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:15,852 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:15,858 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:15,861 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:15,869 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:31:16,617 Rank 0, best iou: 0.33887553215026855 (current 0.33887553215026855), best probability accuracy: 0.7268518805503845 (current 0.7268518805503845)
+2025-11-13 21:32:20,930 Epoch 86, Iter 1548, rank 0, Time: data 62.494s, pred 1.268s, all 63.764s (63.764s), Loss: loss_bbox_center: 0.007404 (0.007404), loss_bbox_hw: 0.007646 (0.007646), loss_bbox_giou: 0.264337 (0.264337), loss_prob: 0.001286 (0.001286)
+2025-11-13 21:34:00,267 Epoch 87, Iter 1566, rank 0, Time: data 59.180s, pred 1.205s, all 60.387s (60.387s), Loss: loss_bbox_center: 0.005980 (0.005980), loss_bbox_hw: 0.007290 (0.007290), loss_bbox_giou: 0.209782 (0.209782), loss_prob: 0.000781 (0.000781)
+2025-11-13 21:35:30,175 Epoch 88, Iter 1584, rank 0, Time: data 47.975s, pred 1.230s, all 49.208s (49.208s), Loss: loss_bbox_center: 0.010060 (0.010060), loss_bbox_hw: 0.011685 (0.011685), loss_bbox_giou: 0.314736 (0.314736), loss_prob: 0.000705 (0.000705)
+2025-11-13 21:37:23,425 Epoch 89, Iter 1602, rank 0, Time: data 60.369s, pred 1.253s, all 61.625s (61.625s), Loss: loss_bbox_center: 0.006979 (0.006979), loss_bbox_hw: 0.007176 (0.007176), loss_bbox_giou: 0.181515 (0.181515), loss_prob: 0.001309 (0.001309)
+2025-11-13 21:38:59,699 Epoch 90, Iter 1620, rank 0, Time: data 55.779s, pred 1.274s, all 57.056s (57.056s), Loss: loss_bbox_center: 0.013575 (0.013575), loss_bbox_hw: 0.009950 (0.009950), loss_bbox_giou: 0.245496 (0.245496), loss_prob: 0.001315 (0.001315)
+2025-11-13 21:40:59,863 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,868 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,875 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,880 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,886 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,894 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,898 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,904 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,910 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,915 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,923 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,928 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,936 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,941 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,946 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,955 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:40:59,958 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:41:01,222 Rank 0, best iou: 0.3577992618083954 (current 0.3577992618083954), best probability accuracy: 0.7322531342506409 (current 0.7322531342506409)
+2025-11-13 21:41:59,313 Epoch 91, Iter 1638, rank 0, Time: data 56.198s, pred 1.332s, all 57.533s (57.533s), Loss: loss_bbox_center: 0.006456 (0.006456), loss_bbox_hw: 0.005066 (0.005066), loss_bbox_giou: 0.191404 (0.191404), loss_prob: 0.000875 (0.000875)
+2025-11-13 21:43:46,176 Epoch 92, Iter 1656, rank 0, Time: data 61.393s, pred 1.212s, all 62.608s (62.608s), Loss: loss_bbox_center: 0.005487 (0.005487), loss_bbox_hw: 0.005954 (0.005954), loss_bbox_giou: 0.218656 (0.218656), loss_prob: 0.000612 (0.000612)
+2025-11-13 21:45:25,505 Epoch 93, Iter 1674, rank 0, Time: data 56.203s, pred 1.239s, all 57.445s (57.445s), Loss: loss_bbox_center: 0.004293 (0.004293), loss_bbox_hw: 0.005066 (0.005066), loss_bbox_giou: 0.152870 (0.152870), loss_prob: 0.000700 (0.000700)
+2025-11-13 21:47:18,754 Epoch 94, Iter 1692, rank 0, Time: data 68.389s, pred 1.292s, all 69.683s (69.683s), Loss: loss_bbox_center: 0.008611 (0.008611), loss_bbox_hw: 0.007868 (0.007868), loss_bbox_giou: 0.239233 (0.239233), loss_prob: 0.000858 (0.000858)
+2025-11-13 21:48:59,232 Epoch 95, Iter 1710, rank 0, Time: data 60.330s, pred 1.259s, all 61.591s (61.591s), Loss: loss_bbox_center: 0.005695 (0.005695), loss_bbox_hw: 0.004715 (0.004715), loss_bbox_giou: 0.209643 (0.209643), loss_prob: 0.000824 (0.000824)
+2025-11-13 21:50:54,850 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,855 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,859 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,864 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,868 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,874 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,877 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,882 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,886 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,890 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,896 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,899 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,903 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,908 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,912 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,918 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,921 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,928 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,932 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:54,936 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 21:50:55,718 Rank 0, best iou: 0.3670235276222229 (current 0.3670235276222229), best probability accuracy: 0.7333333492279053 (current 0.7333333492279053)
+2025-11-13 21:52:01,577 Epoch 96, Iter 1728, rank 0, Time: data 64.095s, pred 1.224s, all 65.321s (65.321s), Loss: loss_bbox_center: 0.004908 (0.004908), loss_bbox_hw: 0.005418 (0.005418), loss_bbox_giou: 0.190516 (0.190516), loss_prob: 0.000864 (0.000864)
+2025-11-13 21:53:44,188 Epoch 97, Iter 1746, rank 0, Time: data 58.920s, pred 1.226s, all 60.148s (60.148s), Loss: loss_bbox_center: 0.006995 (0.006995), loss_bbox_hw: 0.006913 (0.006913), loss_bbox_giou: 0.192755 (0.192755), loss_prob: 0.000586 (0.000586)
+2025-11-13 21:55:32,183 Epoch 98, Iter 1764, rank 0, Time: data 64.167s, pred 1.231s, all 65.400s (65.400s), Loss: loss_bbox_center: 0.007763 (0.007763), loss_bbox_hw: 0.007188 (0.007188), loss_bbox_giou: 0.194036 (0.194036), loss_prob: 0.001170 (0.001170)
+2025-11-13 21:57:05,911 Epoch 99, Iter 1782, rank 0, Time: data 53.540s, pred 1.251s, all 54.793s (54.793s), Loss: loss_bbox_center: 0.005932 (0.005932), loss_bbox_hw: 0.005218 (0.005218), loss_bbox_giou: 0.242242 (0.242242), loss_prob: 0.000671 (0.000671)
+2025-11-13 21:58:49,730 Epoch 100, Iter 1800, rank 0, Time: data 57.351s, pred 1.248s, all 58.601s (58.601s), Loss: loss_bbox_center: 0.005890 (0.005890), loss_bbox_hw: 0.005881 (0.005881), loss_bbox_giou: 0.190404 (0.190404), loss_prob: 0.000945 (0.000945)
+2025-11-13 22:00:41,545 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,548 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,553 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,557 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,561 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,567 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,570 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,581 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,588 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,592 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,597 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,602 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,606 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,611 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,614 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,619 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,623 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:41,627 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:00:42,402 Rank 0, best iou: 0.3670235276222229 (current 0.36259156465530396), best probability accuracy: 0.7333333492279053 (current 0.7177470326423645)
+2025-11-13 22:01:37,157 Epoch 101, Iter 1818, rank 0, Time: data 52.926s, pred 1.285s, all 54.214s (54.214s), Loss: loss_bbox_center: 0.005859 (0.005859), loss_bbox_hw: 0.005418 (0.005418), loss_bbox_giou: 0.192489 (0.192489), loss_prob: 0.000790 (0.000790)
+2025-11-13 22:03:27,290 Epoch 102, Iter 1836, rank 0, Time: data 60.619s, pred 1.222s, all 61.844s (61.844s), Loss: loss_bbox_center: 0.005018 (0.005018), loss_bbox_hw: 0.004462 (0.004462), loss_bbox_giou: 0.204401 (0.204401), loss_prob: 0.000805 (0.000805)
+2025-11-13 22:05:04,403 Epoch 103, Iter 1854, rank 0, Time: data 53.932s, pred 1.231s, all 55.165s (55.165s), Loss: loss_bbox_center: 0.007588 (0.007588), loss_bbox_hw: 0.008902 (0.008902), loss_bbox_giou: 0.177044 (0.177044), loss_prob: 0.000899 (0.000899)
+2025-11-13 22:06:56,973 Epoch 104, Iter 1872, rank 0, Time: data 62.229s, pred 1.215s, all 63.446s (63.446s), Loss: loss_bbox_center: 0.005891 (0.005891), loss_bbox_hw: 0.005709 (0.005709), loss_bbox_giou: 0.196115 (0.196115), loss_prob: 0.000974 (0.000974)
+2025-11-13 22:08:30,153 Epoch 105, Iter 1890, rank 0, Time: data 53.165s, pred 1.243s, all 54.410s (54.410s), Loss: loss_bbox_center: 0.004857 (0.004857), loss_bbox_hw: 0.004886 (0.004886), loss_bbox_giou: 0.244997 (0.244997), loss_prob: 0.000638 (0.000638)
+2025-11-13 22:10:31,915 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:31,921 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:31,929 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:31,935 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:31,941 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:31,949 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:31,953 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:31,959 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:31,965 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:31,970 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:31,982 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:31,987 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:31,994 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:32,000 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:32,006 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:32,016 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:32,020 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:10:33,107 Rank 0, best iou: 0.3763604462146759 (current 0.3763604462146759), best probability accuracy: 0.7398148775100708 (current 0.7398148775100708)
+2025-11-13 22:11:19,565 Epoch 106, Iter 1908, rank 0, Time: data 44.599s, pred 1.307s, all 45.910s (45.910s), Loss: loss_bbox_center: 0.003470 (0.003470), loss_bbox_hw: 0.003763 (0.003763), loss_bbox_giou: 0.174215 (0.174215), loss_prob: 0.000514 (0.000514)
+2025-11-13 22:13:02,020 Epoch 107, Iter 1926, rank 0, Time: data 49.377s, pred 1.434s, all 50.814s (50.814s), Loss: loss_bbox_center: 0.007587 (0.007587), loss_bbox_hw: 0.008523 (0.008523), loss_bbox_giou: 0.151246 (0.151246), loss_prob: 0.000798 (0.000798)
+2025-11-13 22:14:52,962 Epoch 108, Iter 1944, rank 0, Time: data 61.372s, pred 1.203s, all 62.577s (62.577s), Loss: loss_bbox_center: 0.005410 (0.005410), loss_bbox_hw: 0.005575 (0.005575), loss_bbox_giou: 0.219619 (0.219619), loss_prob: 0.001057 (0.001057)
+2025-11-13 22:16:21,641 Epoch 109, Iter 1962, rank 0, Time: data 47.434s, pred 1.235s, all 48.671s (48.671s), Loss: loss_bbox_center: 0.005783 (0.005783), loss_bbox_hw: 0.003993 (0.003993), loss_bbox_giou: 0.194580 (0.194580), loss_prob: 0.000537 (0.000537)
+2025-11-13 22:18:19,548 Epoch 110, Iter 1980, rank 0, Time: data 61.408s, pred 1.277s, all 62.687s (62.687s), Loss: loss_bbox_center: 0.006422 (0.006422), loss_bbox_hw: 0.005290 (0.005290), loss_bbox_giou: 0.212578 (0.212578), loss_prob: 0.000815 (0.000815)
+2025-11-13 22:20:13,900 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,905 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,925 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,929 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,934 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,939 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,945 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,953 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,957 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,963 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,968 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,973 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,980 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,984 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,989 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,994 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:13,999 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:20:15,011 Rank 0, best iou: 0.3763604462146759 (current 0.37173575162887573), best probability accuracy: 0.7398148775100708 (current 0.717129647731781)
+2025-11-13 22:21:18,390 Epoch 111, Iter 1998, rank 0, Time: data 61.616s, pred 1.216s, all 62.835s (62.835s), Loss: loss_bbox_center: 0.006175 (0.006175), loss_bbox_hw: 0.006975 (0.006975), loss_bbox_giou: 0.171537 (0.171537), loss_prob: 0.000684 (0.000684)
+2025-11-13 22:22:54,104 Epoch 112, Iter 2016, rank 0, Time: data 55.618s, pred 1.311s, all 56.932s (56.932s), Loss: loss_bbox_center: 0.006155 (0.006155), loss_bbox_hw: 0.005313 (0.005313), loss_bbox_giou: 0.198037 (0.198037), loss_prob: 0.000907 (0.000907)
+2025-11-13 22:24:34,109 Epoch 113, Iter 2034, rank 0, Time: data 55.986s, pred 1.419s, all 57.407s (57.407s), Loss: loss_bbox_center: 0.004367 (0.004367), loss_bbox_hw: 0.004322 (0.004322), loss_bbox_giou: 0.174863 (0.174863), loss_prob: 0.000755 (0.000755)
+2025-11-13 22:26:27,100 Epoch 114, Iter 2052, rank 0, Time: data 64.193s, pred 1.229s, all 65.424s (65.424s), Loss: loss_bbox_center: 0.006542 (0.006542), loss_bbox_hw: 0.006550 (0.006550), loss_bbox_giou: 0.181780 (0.181780), loss_prob: 0.000724 (0.000724)
+2025-11-13 22:28:09,573 Epoch 115, Iter 2070, rank 0, Time: data 61.728s, pred 1.209s, all 62.939s (62.939s), Loss: loss_bbox_center: 0.005740 (0.005740), loss_bbox_hw: 0.005211 (0.005211), loss_bbox_giou: 0.192243 (0.192243), loss_prob: 0.000871 (0.000871)
+2025-11-13 22:30:05,284 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,293 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,299 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,305 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,311 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,320 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,324 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,331 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,337 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,343 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,351 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,356 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,364 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,371 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,377 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,386 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,390 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:05,399 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:30:06,473 Rank 0, best iou: 0.39852961897850037 (current 0.39852961897850037), best probability accuracy: 0.7398148775100708 (current 0.7334876656532288)
+2025-11-13 22:31:02,111 Epoch 116, Iter 2088, rank 0, Time: data 53.853s, pred 1.241s, all 55.097s (55.097s), Loss: loss_bbox_center: 0.004476 (0.004476), loss_bbox_hw: 0.004740 (0.004740), loss_bbox_giou: 0.162907 (0.162907), loss_prob: 0.000696 (0.000696)
+2025-11-13 22:32:49,281 Epoch 117, Iter 2106, rank 0, Time: data 61.580s, pred 1.232s, all 62.815s (62.815s), Loss: loss_bbox_center: 0.005300 (0.005300), loss_bbox_hw: 0.005088 (0.005088), loss_bbox_giou: 0.146599 (0.146599), loss_prob: 0.001371 (0.001371)
+2025-11-13 22:34:28,361 Epoch 118, Iter 2124, rank 0, Time: data 58.695s, pred 1.292s, all 59.989s (59.989s), Loss: loss_bbox_center: 0.005174 (0.005174), loss_bbox_hw: 0.005105 (0.005105), loss_bbox_giou: 0.172912 (0.172912), loss_prob: 0.000698 (0.000698)
+2025-11-13 22:36:03,094 Epoch 119, Iter 2142, rank 0, Time: data 53.378s, pred 1.230s, all 54.610s (54.610s), Loss: loss_bbox_center: 0.005791 (0.005791), loss_bbox_hw: 0.006056 (0.006056), loss_bbox_giou: 0.226554 (0.226554), loss_prob: 0.000737 (0.000737)
+2025-11-13 22:37:40,016 Epoch 120, Iter 2160, rank 0, Time: data 49.682s, pred 1.246s, all 50.931s (50.931s), Loss: loss_bbox_center: 0.006455 (0.006455), loss_bbox_hw: 0.006596 (0.006596), loss_bbox_giou: 0.297182 (0.297182), loss_prob: 0.000888 (0.000888)
+2025-11-13 22:39:45,158 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,165 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,172 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,177 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,183 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,191 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,196 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,217 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,222 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,227 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,232 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,238 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,246 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,250 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,258 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:45,264 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:39:46,273 Rank 0, best iou: 0.40956932306289673 (current 0.40956932306289673), best probability accuracy: 0.7483024597167969 (current 0.7483024597167969)
+2025-11-13 22:40:44,093 Epoch 121, Iter 2178, rank 0, Time: data 55.944s, pred 1.280s, all 57.263s (57.263s), Loss: loss_bbox_center: 0.004646 (0.004646), loss_bbox_hw: 0.004789 (0.004789), loss_bbox_giou: 0.215524 (0.215524), loss_prob: 0.000537 (0.000537)
+2025-11-13 22:42:30,925 Epoch 122, Iter 2196, rank 0, Time: data 58.728s, pred 1.237s, all 59.967s (59.967s), Loss: loss_bbox_center: 0.010948 (0.010948), loss_bbox_hw: 0.012896 (0.012896), loss_bbox_giou: 0.177924 (0.177924), loss_prob: 0.001149 (0.001149)
+2025-11-13 22:44:16,218 Epoch 123, Iter 2214, rank 0, Time: data 57.850s, pred 1.257s, all 59.110s (59.110s), Loss: loss_bbox_center: 0.004882 (0.004882), loss_bbox_hw: 0.004786 (0.004786), loss_bbox_giou: 0.172444 (0.172444), loss_prob: 0.000690 (0.000690)
+2025-11-13 22:45:59,972 Epoch 124, Iter 2232, rank 0, Time: data 57.564s, pred 1.205s, all 58.771s (58.771s), Loss: loss_bbox_center: 0.004096 (0.004096), loss_bbox_hw: 0.004850 (0.004850), loss_bbox_giou: 0.161583 (0.161583), loss_prob: 0.000487 (0.000487)
+2025-11-13 22:47:44,187 Epoch 125, Iter 2250, rank 0, Time: data 60.896s, pred 1.222s, all 62.120s (62.120s), Loss: loss_bbox_center: 0.005107 (0.005107), loss_bbox_hw: 0.004392 (0.004392), loss_bbox_giou: 0.159465 (0.159465), loss_prob: 0.000662 (0.000662)
+2025-11-13 22:49:46,648 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,653 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,657 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,661 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,665 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,672 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,675 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,680 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,684 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,689 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,695 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,698 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,705 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,711 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,716 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,724 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,728 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,736 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,741 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:46,747 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:49:47,528 Rank 0, best iou: 0.42678770422935486 (current 0.42678770422935486), best probability accuracy: 0.7524691224098206 (current 0.7524691224098206)
+2025-11-13 22:50:51,964 Epoch 126, Iter 2268, rank 0, Time: data 62.691s, pred 1.205s, all 63.898s (63.898s), Loss: loss_bbox_center: 0.005674 (0.005674), loss_bbox_hw: 0.004516 (0.004516), loss_bbox_giou: 0.195553 (0.195553), loss_prob: 0.000688 (0.000688)
+2025-11-13 22:52:29,872 Epoch 127, Iter 2286, rank 0, Time: data 57.556s, pred 1.205s, all 58.763s (58.763s), Loss: loss_bbox_center: 0.006132 (0.006132), loss_bbox_hw: 0.005091 (0.005091), loss_bbox_giou: 0.170913 (0.170913), loss_prob: 0.000951 (0.000951)
+2025-11-13 22:54:06,747 Epoch 128, Iter 2304, rank 0, Time: data 56.587s, pred 1.226s, all 57.815s (57.815s), Loss: loss_bbox_center: 0.003997 (0.003997), loss_bbox_hw: 0.004799 (0.004799), loss_bbox_giou: 0.159884 (0.159884), loss_prob: 0.000511 (0.000511)
+2025-11-13 22:55:46,218 Epoch 129, Iter 2322, rank 0, Time: data 52.577s, pred 1.353s, all 53.933s (53.933s), Loss: loss_bbox_center: 0.005195 (0.005195), loss_bbox_hw: 0.004023 (0.004023), loss_bbox_giou: 0.169832 (0.169832), loss_prob: 0.000617 (0.000617)
+2025-11-13 22:57:24,593 Epoch 130, Iter 2340, rank 0, Time: data 54.185s, pred 1.237s, all 55.425s (55.425s), Loss: loss_bbox_center: 0.006991 (0.006991), loss_bbox_hw: 0.007450 (0.007450), loss_bbox_giou: 0.152716 (0.152716), loss_prob: 0.000891 (0.000891)
+2025-11-13 22:59:22,061 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:59:22,096 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:59:22,279 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:59:22,284 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:59:22,300 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:59:22,311 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:59:22,317 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:59:22,321 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:59:22,325 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:59:22,330 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:59:22,334 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:59:22,340 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:59:22,344 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 22:59:23,091 Rank 0, best iou: 0.42678770422935486 (current 0.4200219511985779), best probability accuracy: 0.7524691224098206 (current 0.7419753670692444)
+2025-11-13 23:00:23,291 Epoch 131, Iter 2358, rank 0, Time: data 58.414s, pred 1.229s, all 59.646s (59.646s), Loss: loss_bbox_center: 0.006508 (0.006508), loss_bbox_hw: 0.006332 (0.006332), loss_bbox_giou: 0.125359 (0.125359), loss_prob: 0.000774 (0.000774)
+2025-11-13 23:02:11,567 Epoch 132, Iter 2376, rank 0, Time: data 59.648s, pred 1.308s, all 60.959s (60.959s), Loss: loss_bbox_center: 0.003818 (0.003818), loss_bbox_hw: 0.003972 (0.003972), loss_bbox_giou: 0.165112 (0.165112), loss_prob: 0.000784 (0.000784)
+2025-11-13 23:03:50,637 Epoch 133, Iter 2394, rank 0, Time: data 53.133s, pred 1.235s, all 54.371s (54.371s), Loss: loss_bbox_center: 0.006315 (0.006315), loss_bbox_hw: 0.007222 (0.007222), loss_bbox_giou: 0.142546 (0.142546), loss_prob: 0.000614 (0.000614)
+2025-11-13 23:05:35,258 Epoch 134, Iter 2412, rank 0, Time: data 61.550s, pred 1.210s, all 62.762s (62.762s), Loss: loss_bbox_center: 0.003547 (0.003547), loss_bbox_hw: 0.003695 (0.003695), loss_bbox_giou: 0.177809 (0.177809), loss_prob: 0.000502 (0.000502)
+2025-11-13 23:07:06,949 Epoch 135, Iter 2430, rank 0, Time: data 50.909s, pred 1.286s, all 52.197s (52.197s), Loss: loss_bbox_center: 0.004844 (0.004844), loss_bbox_hw: 0.004154 (0.004154), loss_bbox_giou: 0.186712 (0.186712), loss_prob: 0.000423 (0.000423)
+2025-11-13 23:09:09,576 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,580 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,586 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,591 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,596 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,605 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,608 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,615 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,618 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,628 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,632 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,651 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,656 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,662 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,668 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:09,673 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:09:10,366 Rank 0, best iou: 0.43542924523353577 (current 0.43542924523353577), best probability accuracy: 0.7606481909751892 (current 0.7606481909751892)
+2025-11-13 23:10:15,979 Epoch 136, Iter 2448, rank 0, Time: data 63.866s, pred 1.206s, all 65.074s (65.074s), Loss: loss_bbox_center: 0.004297 (0.004297), loss_bbox_hw: 0.005729 (0.005729), loss_bbox_giou: 0.199527 (0.199527), loss_prob: 0.000875 (0.000875)
+2025-11-13 23:11:57,567 Epoch 137, Iter 2466, rank 0, Time: data 61.396s, pred 1.208s, all 62.605s (62.605s), Loss: loss_bbox_center: 0.003804 (0.003804), loss_bbox_hw: 0.004194 (0.004194), loss_bbox_giou: 0.143244 (0.143244), loss_prob: 0.000613 (0.000613)
+2025-11-13 23:13:34,053 Epoch 138, Iter 2484, rank 0, Time: data 55.837s, pred 1.288s, all 57.128s (57.128s), Loss: loss_bbox_center: 0.004114 (0.004114), loss_bbox_hw: 0.004250 (0.004250), loss_bbox_giou: 0.171984 (0.171984), loss_prob: 0.000496 (0.000496)
+2025-11-13 23:15:25,874 Epoch 139, Iter 2502, rank 0, Time: data 67.217s, pred 1.215s, all 68.434s (68.434s), Loss: loss_bbox_center: 0.005772 (0.005772), loss_bbox_hw: 0.005729 (0.005729), loss_bbox_giou: 0.131598 (0.131598), loss_prob: 0.000935 (0.000935)
+2025-11-13 23:17:05,138 Epoch 140, Iter 2520, rank 0, Time: data 59.175s, pred 1.212s, all 60.390s (60.390s), Loss: loss_bbox_center: 0.003802 (0.003802), loss_bbox_hw: 0.003631 (0.003631), loss_bbox_giou: 0.120826 (0.120826), loss_prob: 0.000522 (0.000522)
+2025-11-13 23:19:06,137 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,142 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,161 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,166 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,172 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,177 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,182 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,190 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,195 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,205 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,210 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,218 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,222 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,229 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,234 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:06,239 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:19:07,243 Rank 0, best iou: 0.43542924523353577 (current 0.4155261814594269), best probability accuracy: 0.7606481909751892 (current 0.729629635810852)
+2025-11-13 23:20:09,337 Epoch 141, Iter 2538, rank 0, Time: data 60.339s, pred 1.211s, all 61.553s (61.553s), Loss: loss_bbox_center: 0.004539 (0.004539), loss_bbox_hw: 0.004651 (0.004651), loss_bbox_giou: 0.161081 (0.161081), loss_prob: 0.000652 (0.000652)
+2025-11-13 23:21:52,068 Epoch 142, Iter 2556, rank 0, Time: data 57.387s, pred 1.218s, all 58.608s (58.608s), Loss: loss_bbox_center: 0.004803 (0.004803), loss_bbox_hw: 0.005111 (0.005111), loss_bbox_giou: 0.189029 (0.189029), loss_prob: 0.000501 (0.000501)
+2025-11-13 23:23:23,250 Epoch 143, Iter 2574, rank 0, Time: data 49.119s, pred 1.371s, all 50.494s (50.494s), Loss: loss_bbox_center: 0.005031 (0.005031), loss_bbox_hw: 0.004848 (0.004848), loss_bbox_giou: 0.180826 (0.180826), loss_prob: 0.000539 (0.000539)
+2025-11-13 23:25:08,739 Epoch 144, Iter 2592, rank 0, Time: data 57.019s, pred 1.272s, all 58.294s (58.294s), Loss: loss_bbox_center: 0.003738 (0.003738), loss_bbox_hw: 0.003790 (0.003790), loss_bbox_giou: 0.114041 (0.114041), loss_prob: 0.000475 (0.000475)
+2025-11-13 23:26:49,312 Epoch 145, Iter 2610, rank 0, Time: data 56.792s, pred 1.329s, all 58.124s (58.124s), Loss: loss_bbox_center: 0.004361 (0.004361), loss_bbox_hw: 0.004010 (0.004010), loss_bbox_giou: 0.132614 (0.132614), loss_prob: 0.000490 (0.000490)
+2025-11-13 23:28:50,350 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:28:50,356 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:28:50,362 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:28:50,381 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:28:50,385 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:28:50,407 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:28:50,412 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:28:50,419 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:28:50,424 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:28:50,430 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:28:50,439 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:28:50,442 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:28:50,454 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:28:50,461 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:28:51,532 Rank 0, best iou: 0.439314067363739 (current 0.439314067363739), best probability accuracy: 0.7606481909751892 (current 0.7473766207695007)
+2025-11-13 23:29:48,409 Epoch 146, Iter 2628, rank 0, Time: data 55.090s, pred 1.239s, all 56.332s (56.332s), Loss: loss_bbox_center: 0.004327 (0.004327), loss_bbox_hw: 0.004737 (0.004737), loss_bbox_giou: 0.124344 (0.124344), loss_prob: 0.000584 (0.000584)
+2025-11-13 23:31:31,246 Epoch 147, Iter 2646, rank 0, Time: data 58.252s, pred 1.277s, all 59.531s (59.531s), Loss: loss_bbox_center: 0.005737 (0.005737), loss_bbox_hw: 0.004426 (0.004426), loss_bbox_giou: 0.132645 (0.132645), loss_prob: 0.000554 (0.000554)
+2025-11-13 23:33:08,418 Epoch 148, Iter 2664, rank 0, Time: data 50.766s, pred 1.250s, all 52.018s (52.018s), Loss: loss_bbox_center: 0.003378 (0.003378), loss_bbox_hw: 0.003373 (0.003373), loss_bbox_giou: 0.165794 (0.165794), loss_prob: 0.000333 (0.000333)
+2025-11-13 23:34:59,640 Epoch 149, Iter 2682, rank 0, Time: data 63.099s, pred 1.207s, all 64.309s (64.309s), Loss: loss_bbox_center: 0.004554 (0.004554), loss_bbox_hw: 0.004085 (0.004085), loss_bbox_giou: 0.158026 (0.158026), loss_prob: 0.000851 (0.000851)
+2025-11-13 23:36:35,914 Epoch 150, Iter 2700, rank 0, Time: data 56.032s, pred 1.252s, all 57.287s (57.287s), Loss: loss_bbox_center: 0.005315 (0.005315), loss_bbox_hw: 0.003494 (0.003494), loss_bbox_giou: 0.169492 (0.169492), loss_prob: 0.000468 (0.000468)
+2025-11-13 23:38:38,190 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,195 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,201 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,205 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,209 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,215 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,218 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,222 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,226 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,230 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,236 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,239 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,245 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,250 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,255 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,261 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,264 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,271 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,275 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:38,279 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:38:39,038 Rank 0, best iou: 0.44598516821861267 (current 0.44598516821861267), best probability accuracy: 0.7651234865188599 (current 0.7651234865188599)
+2025-11-13 23:39:41,365 Epoch 151, Iter 2718, rank 0, Time: data 60.579s, pred 1.204s, all 61.785s (61.785s), Loss: loss_bbox_center: 0.005646 (0.005646), loss_bbox_hw: 0.005147 (0.005147), loss_bbox_giou: 0.184951 (0.184951), loss_prob: 0.000780 (0.000780)
+2025-11-13 23:41:19,310 Epoch 152, Iter 2736, rank 0, Time: data 57.861s, pred 1.224s, all 59.087s (59.087s), Loss: loss_bbox_center: 0.003425 (0.003425), loss_bbox_hw: 0.003395 (0.003395), loss_bbox_giou: 0.152213 (0.152213), loss_prob: 0.000715 (0.000715)
+2025-11-13 23:43:01,224 Epoch 153, Iter 2754, rank 0, Time: data 56.984s, pred 1.313s, all 58.300s (58.300s), Loss: loss_bbox_center: 0.004112 (0.004112), loss_bbox_hw: 0.003899 (0.003899), loss_bbox_giou: 0.148590 (0.148590), loss_prob: 0.000652 (0.000652)
+2025-11-13 23:44:43,183 Epoch 154, Iter 2772, rank 0, Time: data 56.324s, pred 1.217s, all 57.544s (57.544s), Loss: loss_bbox_center: 0.004991 (0.004991), loss_bbox_hw: 0.004607 (0.004607), loss_bbox_giou: 0.170362 (0.170362), loss_prob: 0.000682 (0.000682)
+2025-11-13 23:46:31,429 Epoch 155, Iter 2790, rank 0, Time: data 63.185s, pred 1.259s, all 64.447s (64.447s), Loss: loss_bbox_center: 0.004792 (0.004792), loss_bbox_hw: 0.004380 (0.004380), loss_bbox_giou: 0.101493 (0.101493), loss_prob: 0.000680 (0.000680)
+2025-11-13 23:48:25,045 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:48:25,048 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:48:25,053 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:48:25,065 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:48:25,069 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:48:25,087 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:48:25,090 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:48:25,107 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:48:25,110 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:48:25,116 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:48:25,120 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:48:25,125 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:48:25,828 Rank 0, best iou: 0.46111586689949036 (current 0.46111586689949036), best probability accuracy: 0.7651234865188599 (current 0.7645061612129211)
+2025-11-13 23:49:23,870 Epoch 156, Iter 2808, rank 0, Time: data 56.103s, pred 1.395s, all 57.501s (57.501s), Loss: loss_bbox_center: 0.003932 (0.003932), loss_bbox_hw: 0.003731 (0.003731), loss_bbox_giou: 0.129921 (0.129921), loss_prob: 0.000395 (0.000395)
+2025-11-13 23:51:01,917 Epoch 157, Iter 2826, rank 0, Time: data 51.456s, pred 1.330s, all 52.788s (52.788s), Loss: loss_bbox_center: 0.003799 (0.003799), loss_bbox_hw: 0.003201 (0.003201), loss_bbox_giou: 0.139010 (0.139010), loss_prob: 0.000571 (0.000571)
+2025-11-13 23:52:48,399 Epoch 158, Iter 2844, rank 0, Time: data 57.787s, pred 1.237s, all 59.027s (59.027s), Loss: loss_bbox_center: 0.004746 (0.004746), loss_bbox_hw: 0.004279 (0.004279), loss_bbox_giou: 0.150482 (0.150482), loss_prob: 0.000588 (0.000588)
+2025-11-13 23:54:31,732 Epoch 159, Iter 2862, rank 0, Time: data 59.326s, pred 1.359s, all 60.688s (60.688s), Loss: loss_bbox_center: 0.004028 (0.004028), loss_bbox_hw: 0.003921 (0.003921), loss_bbox_giou: 0.175844 (0.175844), loss_prob: 0.000494 (0.000494)
+2025-11-13 23:56:17,662 Epoch 160, Iter 2880, rank 0, Time: data 59.917s, pred 1.201s, all 61.121s (61.121s), Loss: loss_bbox_center: 0.005932 (0.005932), loss_bbox_hw: 0.004518 (0.004518), loss_bbox_giou: 0.202143 (0.202143), loss_prob: 0.000669 (0.000669)
+2025-11-13 23:58:14,857 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:14,862 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:14,868 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:14,874 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:14,879 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:14,888 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:14,891 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:14,916 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:14,920 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:14,928 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:14,946 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:14,949 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:14,956 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:14,962 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:14,967 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-13 23:58:15,704 Rank 0, best iou: 0.46111586689949036 (current 0.45205819606781006), best probability accuracy: 0.7677469849586487 (current 0.7677469849586487)
+2025-11-13 23:59:03,317 Epoch 161, Iter 2898, rank 0, Time: data 45.815s, pred 1.244s, all 47.062s (47.062s), Loss: loss_bbox_center: 0.004340 (0.004340), loss_bbox_hw: 0.004478 (0.004478), loss_bbox_giou: 0.142968 (0.142968), loss_prob: 0.000603 (0.000603)
+2025-11-14 00:00:58,168 Epoch 162, Iter 2916, rank 0, Time: data 58.223s, pred 1.298s, all 59.523s (59.523s), Loss: loss_bbox_center: 0.004690 (0.004690), loss_bbox_hw: 0.005027 (0.005027), loss_bbox_giou: 0.166523 (0.166523), loss_prob: 0.000582 (0.000582)
+2025-11-14 00:02:40,616 Epoch 163, Iter 2934, rank 0, Time: data 61.752s, pred 1.293s, all 63.047s (63.047s), Loss: loss_bbox_center: 0.005637 (0.005637), loss_bbox_hw: 0.005790 (0.005790), loss_bbox_giou: 0.114503 (0.114503), loss_prob: 0.000672 (0.000672)
+2025-11-14 00:04:23,675 Epoch 164, Iter 2952, rank 0, Time: data 59.640s, pred 1.212s, all 60.854s (60.854s), Loss: loss_bbox_center: 0.004558 (0.004558), loss_bbox_hw: 0.003828 (0.003828), loss_bbox_giou: 0.136049 (0.136049), loss_prob: 0.000619 (0.000619)
+2025-11-14 00:06:01,530 Epoch 165, Iter 2970, rank 0, Time: data 55.570s, pred 1.265s, all 56.838s (56.838s), Loss: loss_bbox_center: 0.004127 (0.004127), loss_bbox_hw: 0.003806 (0.003806), loss_bbox_giou: 0.117865 (0.117865), loss_prob: 0.000469 (0.000469)
+2025-11-14 00:07:59,158 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,164 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,170 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,176 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,181 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,188 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,192 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,203 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,208 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,219 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,222 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,237 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,246 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,255 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,264 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:07:59,268 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:08:00,296 Rank 0, best iou: 0.46334731578826904 (current 0.46334731578826904), best probability accuracy: 0.7677469849586487 (current 0.7652778029441833)
+2025-11-14 00:08:48,146 Epoch 166, Iter 2988, rank 0, Time: data 46.018s, pred 1.248s, all 47.268s (47.268s), Loss: loss_bbox_center: 0.004642 (0.004642), loss_bbox_hw: 0.004247 (0.004247), loss_bbox_giou: 0.190398 (0.190398), loss_prob: 0.000424 (0.000424)
+2025-11-14 00:10:49,934 Epoch 167, Iter 3006, rank 0, Time: data 63.024s, pred 1.263s, all 64.289s (64.289s), Loss: loss_bbox_center: 0.005251 (0.005251), loss_bbox_hw: 0.005859 (0.005859), loss_bbox_giou: 0.184330 (0.184330), loss_prob: 0.000455 (0.000455)
+2025-11-14 00:12:28,177 Epoch 168, Iter 3024, rank 0, Time: data 58.080s, pred 1.206s, all 59.289s (59.289s), Loss: loss_bbox_center: 0.004404 (0.004404), loss_bbox_hw: 0.004066 (0.004066), loss_bbox_giou: 0.189577 (0.189577), loss_prob: 0.000467 (0.000467)
+2025-11-14 00:14:15,671 Epoch 169, Iter 3042, rank 0, Time: data 61.290s, pred 1.206s, all 62.498s (62.498s), Loss: loss_bbox_center: 0.003510 (0.003510), loss_bbox_hw: 0.003515 (0.003515), loss_bbox_giou: 0.103850 (0.103850), loss_prob: 0.000386 (0.000386)
+2025-11-14 00:15:46,452 Epoch 170, Iter 3060, rank 0, Time: data 49.181s, pred 1.287s, all 50.471s (50.471s), Loss: loss_bbox_center: 0.004809 (0.004809), loss_bbox_hw: 0.004055 (0.004055), loss_bbox_giou: 0.152800 (0.152800), loss_prob: 0.000499 (0.000499)
+2025-11-14 00:17:46,003 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,010 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,015 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,020 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,025 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,033 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,037 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,043 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,052 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,062 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,067 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,077 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,084 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,091 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,100 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,104 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,111 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,116 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:46,121 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:17:47,108 Rank 0, best iou: 0.46334731578826904 (current 0.45344966650009155), best probability accuracy: 0.7677469849586487 (current 0.7662037014961243)
+2025-11-14 00:18:47,572 Epoch 171, Iter 3078, rank 0, Time: data 58.696s, pred 1.221s, all 59.920s (59.920s), Loss: loss_bbox_center: 0.003173 (0.003173), loss_bbox_hw: 0.003051 (0.003051), loss_bbox_giou: 0.131275 (0.131275), loss_prob: 0.000354 (0.000354)
+2025-11-14 00:20:36,997 Epoch 172, Iter 3096, rank 0, Time: data 62.940s, pred 1.207s, all 64.149s (64.149s), Loss: loss_bbox_center: 0.003539 (0.003539), loss_bbox_hw: 0.004301 (0.004301), loss_bbox_giou: 0.116932 (0.116932), loss_prob: 0.000662 (0.000662)
+2025-11-14 00:22:17,485 Epoch 173, Iter 3114, rank 0, Time: data 60.041s, pred 1.222s, all 61.267s (61.267s), Loss: loss_bbox_center: 0.004019 (0.004019), loss_bbox_hw: 0.003462 (0.003462), loss_bbox_giou: 0.166170 (0.166170), loss_prob: 0.000675 (0.000675)
+2025-11-14 00:24:04,590 Epoch 174, Iter 3132, rank 0, Time: data 63.776s, pred 1.224s, all 65.003s (65.003s), Loss: loss_bbox_center: 0.004411 (0.004411), loss_bbox_hw: 0.004483 (0.004483), loss_bbox_giou: 0.134215 (0.134215), loss_prob: 0.000485 (0.000485)
+2025-11-14 00:25:57,683 Epoch 175, Iter 3150, rank 0, Time: data 68.955s, pred 1.224s, all 70.181s (70.181s), Loss: loss_bbox_center: 0.004283 (0.004283), loss_bbox_hw: 0.004500 (0.004500), loss_bbox_giou: 0.135541 (0.135541), loss_prob: 0.000770 (0.000770)
+2025-11-14 00:27:50,418 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,422 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,429 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,434 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,438 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,445 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,448 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,453 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,457 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,462 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,468 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,471 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,479 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,484 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,488 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,493 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:50,496 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:27:51,241 Rank 0, best iou: 0.46334731578826904 (current 0.46184828877449036), best probability accuracy: 0.7677469849586487 (current 0.7620370388031006)
+2025-11-14 00:28:52,097 Epoch 176, Iter 3168, rank 0, Time: data 59.092s, pred 1.217s, all 60.312s (60.312s), Loss: loss_bbox_center: 0.006167 (0.006167), loss_bbox_hw: 0.005381 (0.005381), loss_bbox_giou: 0.121575 (0.121575), loss_prob: 0.000877 (0.000877)
+2025-11-14 00:30:37,284 Epoch 177, Iter 3186, rank 0, Time: data 63.593s, pred 1.210s, all 64.805s (64.805s), Loss: loss_bbox_center: 0.005745 (0.005745), loss_bbox_hw: 0.005761 (0.005761), loss_bbox_giou: 0.114900 (0.114900), loss_prob: 0.000769 (0.000769)
+2025-11-14 00:32:17,312 Epoch 178, Iter 3204, rank 0, Time: data 54.844s, pred 1.248s, all 56.094s (56.094s), Loss: loss_bbox_center: 0.004412 (0.004412), loss_bbox_hw: 0.003897 (0.003897), loss_bbox_giou: 0.130516 (0.130516), loss_prob: 0.000648 (0.000648)
+2025-11-14 00:33:59,975 Epoch 179, Iter 3222, rank 0, Time: data 59.055s, pred 1.252s, all 60.310s (60.310s), Loss: loss_bbox_center: 0.004437 (0.004437), loss_bbox_hw: 0.004713 (0.004713), loss_bbox_giou: 0.153325 (0.153325), loss_prob: 0.000463 (0.000463)
+2025-11-14 00:35:38,485 Epoch 180, Iter 3240, rank 0, Time: data 54.890s, pred 1.315s, all 56.207s (56.207s), Loss: loss_bbox_center: 0.004106 (0.004106), loss_bbox_hw: 0.004042 (0.004042), loss_bbox_giou: 0.120150 (0.120150), loss_prob: 0.000443 (0.000443)
+2025-11-14 00:37:39,921 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,925 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,931 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,935 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,939 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,945 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,950 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,954 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,959 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,964 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,970 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,973 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,978 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,983 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,987 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,994 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:39,996 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:40,003 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:40,008 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:40,012 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:37:40,725 Rank 0, best iou: 0.46334731578826904 (current 0.460165411233902), best probability accuracy: 0.7686728835105896 (current 0.7686728835105896)
+2025-11-14 00:38:41,893 Epoch 181, Iter 3258, rank 0, Time: data 59.404s, pred 1.222s, all 60.628s (60.628s), Loss: loss_bbox_center: 0.004332 (0.004332), loss_bbox_hw: 0.003394 (0.003394), loss_bbox_giou: 0.138050 (0.138050), loss_prob: 0.000439 (0.000439)
+2025-11-14 00:40:30,178 Epoch 182, Iter 3276, rank 0, Time: data 62.564s, pred 1.215s, all 63.781s (63.781s), Loss: loss_bbox_center: 0.004937 (0.004937), loss_bbox_hw: 0.004510 (0.004510), loss_bbox_giou: 0.156634 (0.156634), loss_prob: 0.000481 (0.000481)
+2025-11-14 00:42:14,588 Epoch 183, Iter 3294, rank 0, Time: data 60.469s, pred 1.226s, all 61.698s (61.698s), Loss: loss_bbox_center: 0.006288 (0.006288), loss_bbox_hw: 0.007075 (0.007075), loss_bbox_giou: 0.123072 (0.123072), loss_prob: 0.000604 (0.000604)
+2025-11-14 00:43:42,855 Epoch 184, Iter 3312, rank 0, Time: data 47.611s, pred 1.296s, all 48.910s (48.910s), Loss: loss_bbox_center: 0.003545 (0.003545), loss_bbox_hw: 0.003352 (0.003352), loss_bbox_giou: 0.108164 (0.108164), loss_prob: 0.000407 (0.000407)
+2025-11-14 00:45:39,586 Epoch 185, Iter 3330, rank 0, Time: data 57.172s, pred 1.225s, all 58.400s (58.400s), Loss: loss_bbox_center: 0.002916 (0.002916), loss_bbox_hw: 0.002829 (0.002829), loss_bbox_giou: 0.168695 (0.168695), loss_prob: 0.000360 (0.000360)
+2025-11-14 00:47:39,519 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,524 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,532 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,538 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,545 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,553 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,556 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,565 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,570 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,576 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,587 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,592 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,597 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,613 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,619 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,626 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,631 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:39,637 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:47:40,686 Rank 0, best iou: 0.46334731578826904 (current 0.46229130029678345), best probability accuracy: 0.7686728835105896 (current 0.766203761100769)
+2025-11-14 00:48:40,148 Epoch 186, Iter 3348, rank 0, Time: data 57.635s, pred 1.219s, all 58.856s (58.856s), Loss: loss_bbox_center: 0.003933 (0.003933), loss_bbox_hw: 0.003866 (0.003866), loss_bbox_giou: 0.128932 (0.128932), loss_prob: 0.000575 (0.000575)
+2025-11-14 00:50:26,764 Epoch 187, Iter 3366, rank 0, Time: data 61.457s, pred 1.197s, all 62.657s (62.657s), Loss: loss_bbox_center: 0.005556 (0.005556), loss_bbox_hw: 0.004795 (0.004795), loss_bbox_giou: 0.158775 (0.158775), loss_prob: 0.000590 (0.000590)
+2025-11-14 00:52:01,867 Epoch 188, Iter 3384, rank 0, Time: data 54.657s, pred 1.318s, all 55.977s (55.977s), Loss: loss_bbox_center: 0.003363 (0.003363), loss_bbox_hw: 0.003324 (0.003324), loss_bbox_giou: 0.151540 (0.151540), loss_prob: 0.000507 (0.000507)
+2025-11-14 00:53:44,670 Epoch 189, Iter 3402, rank 0, Time: data 55.606s, pred 1.217s, all 56.826s (56.826s), Loss: loss_bbox_center: 0.006002 (0.006002), loss_bbox_hw: 0.005138 (0.005138), loss_bbox_giou: 0.182858 (0.182858), loss_prob: 0.000538 (0.000538)
+2025-11-14 00:55:33,475 Epoch 190, Iter 3420, rank 0, Time: data 58.221s, pred 1.298s, all 59.521s (59.521s), Loss: loss_bbox_center: 0.004083 (0.004083), loss_bbox_hw: 0.003793 (0.003793), loss_bbox_giou: 0.132475 (0.132475), loss_prob: 0.000760 (0.000760)
+2025-11-14 00:57:24,650 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,655 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,660 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,664 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,668 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,675 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,678 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,686 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,691 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,696 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,702 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,706 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,711 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,715 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,719 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,724 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,727 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,731 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,735 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:24,739 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 00:57:25,482 Rank 0, best iou: 0.46334731578826904 (current 0.4618861973285675), best probability accuracy: 0.7686728835105896 (current 0.7618827223777771)
+2025-11-14 00:58:24,897 Epoch 191, Iter 3438, rank 0, Time: data 57.658s, pred 1.216s, all 58.877s (58.877s), Loss: loss_bbox_center: 0.003658 (0.003658), loss_bbox_hw: 0.003044 (0.003044), loss_bbox_giou: 0.129752 (0.129752), loss_prob: 0.000549 (0.000549)
+2025-11-14 01:00:05,568 Epoch 192, Iter 3456, rank 0, Time: data 60.029s, pred 1.203s, all 61.234s (61.234s), Loss: loss_bbox_center: 0.004557 (0.004557), loss_bbox_hw: 0.003756 (0.003756), loss_bbox_giou: 0.187540 (0.187540), loss_prob: 0.000532 (0.000532)
+2025-11-14 01:01:42,675 Epoch 193, Iter 3474, rank 0, Time: data 56.681s, pred 1.217s, all 57.901s (57.901s), Loss: loss_bbox_center: 0.004354 (0.004354), loss_bbox_hw: 0.004155 (0.004155), loss_bbox_giou: 0.153496 (0.153496), loss_prob: 0.000570 (0.000570)
+2025-11-14 01:03:29,482 Epoch 194, Iter 3492, rank 0, Time: data 61.023s, pred 1.218s, all 62.242s (62.242s), Loss: loss_bbox_center: 0.005806 (0.005806), loss_bbox_hw: 0.004933 (0.004933), loss_bbox_giou: 0.132570 (0.132570), loss_prob: 0.000772 (0.000772)
+2025-11-14 01:05:17,676 Epoch 195, Iter 3510, rank 0, Time: data 65.188s, pred 1.218s, all 66.408s (66.408s), Loss: loss_bbox_center: 0.003794 (0.003794), loss_bbox_hw: 0.003165 (0.003165), loss_bbox_giou: 0.162756 (0.162756), loss_prob: 0.000822 (0.000822)
+2025-11-14 01:07:10,998 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,003 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,008 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,013 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,022 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,025 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,029 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,034 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,038 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,044 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,047 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,054 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,066 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,070 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,075 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,080 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,085 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:07:11,799 Rank 0, best iou: 0.46368643641471863 (current 0.46368643641471863), best probability accuracy: 0.7686728835105896 (current 0.7643519043922424)
+2025-11-14 01:08:21,794 Epoch 196, Iter 3528, rank 0, Time: data 68.216s, pred 1.237s, all 69.456s (69.456s), Loss: loss_bbox_center: 0.003546 (0.003546), loss_bbox_hw: 0.003416 (0.003416), loss_bbox_giou: 0.129554 (0.129554), loss_prob: 0.000410 (0.000410)
+2025-11-14 01:10:04,704 Epoch 197, Iter 3546, rank 0, Time: data 62.570s, pred 1.232s, all 63.804s (63.804s), Loss: loss_bbox_center: 0.003877 (0.003877), loss_bbox_hw: 0.003601 (0.003601), loss_bbox_giou: 0.130456 (0.130456), loss_prob: 0.000520 (0.000520)
+2025-11-14 01:11:43,767 Epoch 198, Iter 3564, rank 0, Time: data 58.552s, pred 1.210s, all 59.764s (59.764s), Loss: loss_bbox_center: 0.002866 (0.002866), loss_bbox_hw: 0.002680 (0.002680), loss_bbox_giou: 0.167496 (0.167496), loss_prob: 0.000343 (0.000343)
+2025-11-14 01:13:19,421 Epoch 199, Iter 3582, rank 0, Time: data 55.108s, pred 1.352s, all 56.463s (56.463s), Loss: loss_bbox_center: 0.004663 (0.004663), loss_bbox_hw: 0.004513 (0.004513), loss_bbox_giou: 0.150666 (0.150666), loss_prob: 0.000562 (0.000562)
+2025-11-14 01:15:00,030 Epoch 200, Iter 3600, rank 0, Time: data 57.273s, pred 1.261s, all 58.536s (58.536s), Loss: loss_bbox_center: 0.002340 (0.002340), loss_bbox_hw: 0.002635 (0.002635), loss_bbox_giou: 0.113866 (0.113866), loss_prob: 0.000360 (0.000360)
+2025-11-14 01:16:56,524 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,531 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,550 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,554 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,561 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,566 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,571 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,581 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,584 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,593 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,599 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,606 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,613 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,617 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,625 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,633 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:56,639 Clipping input data to the valid range for imshow with RGB data ([0..1] for floats or [0..255] for integers).
+2025-11-14 01:16:57,618 Rank 0, best iou: 0.46769508719444275 (current 0.46769508719444275), best probability accuracy: 0.7686728835105896 (current 0.7665123343467712)

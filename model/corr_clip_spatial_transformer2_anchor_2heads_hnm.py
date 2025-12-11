@@ -5,14 +5,15 @@ from model.transformer import Block
 from utils.model_utils import PositionalEncoding1D, positionalencoding1d, positionalencoding3d, positionalencoding2d
 from utils.model_utils import BasicBlock_Conv2D, BasicBlock_MLP
 from utils.anchor_utils import generate_anchor_boxes_on_regions
-from dataset.dataset_utils import bbox_xyhwToxyxy, recover_bbox
+from dataset.dataset_utils import bbox_xyhwToxyxy
 from einops import rearrange
 import math
 import torchvision
 from dataset import dataset_utils
 from model.mae import vit_base_patch16
+from model.moe import TransformerMoEDecoderLayer, TransformerMoEEncoderLayer
 
-base_sizes=torch.tensor([[12, 12], [18, 18], [24, 24], [32, 32]], dtype=torch.float32)    # 4 types of size
+base_sizes=torch.tensor([[16, 16], [32, 32], [64, 64], [128, 128]], dtype=torch.float32)    # 4 types of size
 aspect_ratios=torch.tensor([0.5, 1, 2], dtype=torch.float32)                                # 3 types of aspect ratio
 n_base_sizes = base_sizes.shape[0]
 n_aspect_ratios = aspect_ratios.shape[0]
@@ -68,9 +69,7 @@ class ClipMatcher(nn.Module):
         self.resolution_anchor_feat = config.model.resolution_anchor_feat
 
         self.anchors_xyhw = generate_anchor_boxes_on_regions(image_size=[self.clip_size_coarse, self.clip_size_coarse],
-                                                        num_regions=[self.resolution_anchor_feat, self.resolution_anchor_feat],
-                                                        base_sizes=base_sizes,
-                                                        aspect_ratios=aspect_ratios)
+                                                        num_regions=[self.resolution_anchor_feat, self.resolution_anchor_feat])
         self.anchors_xyhw = self.anchors_xyhw / self.clip_size_coarse   # [R^2*N*M,4], value range [0,1], represented by [c_x,c_y,h,w] in torch axis
         self.anchors_xyxy = bbox_xyhwToxyxy(self.anchors_xyhw)
 
@@ -97,19 +96,19 @@ class ClipMatcher(nn.Module):
         )
         
         # clip-query correspondence
-        self.CQ_corr_transformer = nn.ModuleList([])
+        self.CQ_corr_transformer = []
         for _ in range(1):
             self.CQ_corr_transformer.append(
-                torch.nn.TransformerDecoderLayer(
+                TransformerMoEDecoderLayer(
                     d_model=256,
                     nhead=4,
+                    num_experts=4,
+                    num_slots=16,
                     dim_feedforward=1024,
                     dropout=0.0,
-                    activation='gelu',
-                    batch_first=True
                 )
             )
-        # self.CQ_corr_transformer = nn.ModuleList(self.CQ_corr_transformer)
+        self.CQ_corr_transformer = nn.ModuleList(self.CQ_corr_transformer)
 
         # feature downsample layers
         self.num_head_layers, self.down_heads = int(math.log2(self.clip_feat_size_coarse)), []
@@ -136,13 +135,13 @@ class ClipMatcher(nn.Module):
         self.num_transformer = config.model.num_transformer
         for _ in range(self.num_transformer):
             self.feat_corr_transformer.append(
-                    torch.nn.TransformerEncoderLayer(
+                    TransformerMoEEncoderLayer(
                         d_model=256, 
                         nhead=8,
+                        num_experts=4,
+                        num_slots=16,
                         dim_feedforward=2048,
                         dropout=0.0,
-                        activation='gelu',
-                        batch_first=True
                 ))
         self.feat_corr_transformer = nn.ModuleList(self.feat_corr_transformer)
         self.temporal_mask = None
@@ -188,16 +187,16 @@ class ClipMatcher(nn.Module):
             return out
         
         
-    def replicate_for_hnm(self, query_feat, clip_feat, b):
+    def replicate_for_hnm(self, query_feat, clip_feat):
         '''
-        query_feat in shape [b*q,c,h,w]
+        query_feat in shape [b,c,h,w]
         clip_feat in shape [b*t,c,h,w]
         '''
+        b = query_feat.shape[0]
         bt = clip_feat.shape[0]
         t = bt // b
         
         clip_feat = rearrange(clip_feat, '(b t) c h w -> b t c h w', b=b, t=t)
-        query_feat = rearrange(query_feat, '(b q) c h w -> b q c h w', b=b)
 
         new_clip_feat, new_query_feat = [], []
         for i in range(b):
@@ -206,23 +205,19 @@ class ClipMatcher(nn.Module):
                 new_query_feat.append(query_feat[j])
 
         new_clip_feat = torch.stack(new_clip_feat)      # [b^2,t,c,h,w]
-        new_query_feat = torch.stack(new_query_feat)    # [b^2,q,c,h,w]
+        new_query_feat = torch.stack(new_query_feat)    # [b^2,c,h,w]
 
         new_clip_feat = rearrange(new_clip_feat, 'b t c h w -> (b t) c h w')
-        new_query_feat = rearrange(new_query_feat, 'b q c h w -> (b q) c h w')
-        
         return new_clip_feat, new_query_feat
 
 
     def forward(self, clip, query, query_frame_bbox=None, training=False, fix_backbone=True):
         '''
         clip: in shape [b,t,c,h,w]
-        query: in shape [b,3,c,h2,w2]
+        query: in shape [b,c,h2,w2]
         '''
         b, t = clip.shape[:2]
-        q = query.shape[1]
         clip = rearrange(clip, 'b t c h w -> (b t) c h w')
-        query = rearrange(query, 'b q c h w -> (b q) c h w')
 
         # get backbone features
         if fix_backbone:
@@ -234,25 +229,28 @@ class ClipMatcher(nn.Module):
             clip_feat = self.extract_feature(clip)          # (b t) c h w
         h, w = clip_feat.shape[-2:]
 
+        if torch.is_tensor(query_frame_bbox) and self.config.train.use_query_roi:
+            idx_tensor = torch.arange(b, device=clip.device).float().view(-1, 1)
+            query_frame_bbox = recover_bbox(query_frame_bbox, h, w)
+            roi_bbox = torch.cat([idx_tensor, query_frame_bbox], dim=1)
+            query_feat = torchvision.ops.roi_align(query_feat, roi_bbox, (h,w))
+
         # reduce channel size
         all_feat = torch.cat([query_feat, clip_feat], dim=0)
         all_feat = self.reduce(all_feat)
-        
-        query_feat, clip_feat = all_feat.split([b*q, b*t], dim=0)
+        query_feat, clip_feat = all_feat.split([b, b*t], dim=0)
 
         if self.config.train.use_hnm and training:
-            clip_feat, query_feat = self.replicate_for_hnm(query_feat, clip_feat, b)   # b -> b^2
+            clip_feat, query_feat = self.replicate_for_hnm(query_feat, clip_feat)   # b -> b^2
             b = b**2
         
         # find spatial correspondence between query-frame
-        query_feat = rearrange(query_feat, '(b q) c h w -> b q c h w', b=b, q=q)
-        query_feat = query_feat.unsqueeze(1).repeat(1, t, 1, 1, 1, 1)      # [b, t, 3, C, h, w]
-        query_feat = rearrange(query_feat, 'b t q c h w -> (b t) (q h w) c')   # [b*t,n,c]
+        query_feat = rearrange(query_feat.unsqueeze(1).repeat(1,t,1,1,1), 'b t c h w -> (b t) (h w) c')  # [b*t,n,c]
         clip_feat = rearrange(clip_feat, 'b c h w -> b (h w) c')                                         # [b*t,n,c]
-
         for layer in self.CQ_corr_transformer:
-            clip_feat = layer(clip_feat, query_feat)                                     # [b*t,n,c]
-        clip_feat = rearrange(clip_feat, 'b (h w) c -> b c h w', h=h, w=w)                # [b*t,c,h,w]
+            clip_feat = layer(clip_feat, query_feat)                                                     # [b*t,n,c]
+        clip_feat = rearrange(clip_feat, 'b (h w) c -> b c h w', h=h, w=w)                               # [b*t,c,h,w]
+
         # down-size features and find spatial-temporal correspondence
         for head in self.down_heads:
             clip_feat = head(clip_feat)
@@ -305,33 +303,6 @@ class ClipMatcher(nn.Module):
             self.temporal_mask = mask
         return self.temporal_mask
     
-class StreamWeightedSum(nn.Module):
-    """
-    Fuse 3 streams in x: [BT, 3, N, C] -> fused [BT, N, C]
-    Guarantees sum_i w_i = 1 over the stream dim for every (BT, N).
-    """
-    def __init__(self, dim, temperature=1.0):
-        super().__init__()
-        self.temperature = temperature
-        self.fc = nn.Linear(dim, 1, bias=True)  # produce one logit per stream & position
-
-    def forward(self, x):
-        """
-        x: [BT, 3, N, C]
-        returns:
-          fused: [BT, N, C]
-          w:     [BT, 3, N]  (attention weights)
-        """
-        BT, S, N, C = x.shape  # S=3
-        x_flat = x.reshape(BT*S*N, C)               # [BT*S*N, C]
-
-        logits = self.fc(x_flat).view(BT, S, N) / self.temperature   # [BT,3,N]
-        w = F.softmax(logits, dim=1)                                # sum over S=3 -> 1
-
-        # Weighted sum over streams
-        fused = (x * w.unsqueeze(-1)).sum(dim=1)          # [BT,N,C]
-        return fused
-
 class Head(nn.Module):
     def __init__(self, in_dim=256, in_res=8, out_res=16, n=n_base_sizes, m=n_aspect_ratios):
         super(Head, self).__init__()
