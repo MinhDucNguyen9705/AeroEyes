@@ -7,17 +7,20 @@ import torch.nn.parallel
 import torch.optim
 import itertools
 import argparse
-from dataset.base_dataset import QueryVideoDataset
-from dataset.egotracks_dataset import EgoTracksDataset
+from dataset.base_dataset import VisualQuery2DDataset, TestDataset
 import kornia
 import kornia.augmentation as K
 from kornia.constants import DataKey
 from einops import rearrange
-
+import glob
+from torchvision import transforms
+from torch.utils.data import ConcatDataset
 
 NORMALIZE_MEAN = [0.485, 0.456, 0.406]
 NORMALIZE_STD = [0.229, 0.224, 0.225]
 
+def unnormalize(img, mean, std):
+    return img * std + mean
 
 def get_dataset(config, split='train'):
     if split == 'train':
@@ -37,34 +40,55 @@ def get_dataset(config, split='train'):
     clip_params = {
         'fine_size': config.dataset.clip_size_fine,
         'coarse_size': config.dataset.clip_size_coarse,
-        'clip_num_frames': clip_num_frames,
+        'num_frames': clip_num_frames,
         'sampling': config.dataset.clip_sampling,
         'frame_interval': config.dataset.frame_interval,
         'padding_value': config.dataset.padding_value
     }
+    dataset = None
+    
+    train_dir = config.dataset.train_dir
+    data_paths = glob.glob(train_dir+'/*')
+    data_paths.sort()
+    data_paths = [p.replace('\\', '/') for p in data_paths]
+    train_paths = data_paths[:12]
+    val_paths = data_paths[11:]
+    print(val_paths)
+
+    test_dir = config.dataset.test_dir
+    video_paths = glob.glob(f'{test_dir}/**/*.mp4', recursive=True)
+
+    # train_ego_dir = config.dataset.train_ego_dir
+    # ego_data_paths = glob.glob(train_ego_dir+'/*')
+    # ego_data_paths = [p.replace('\\', '/') for p in ego_data_paths]
+    # valid_objects = ['active_spray_cleanser_0', 'bag_0', 'bag_2', 'bag_3', 'belt_0', 'black_purse_0', 'bottle_1', 'bottle_2', 'bottle_4', 'bottle_5', 'bottle_6', 'bottle_7', 'bowl_0', 'bowl_2', 'box_1', 'broom_0', 'brush_0', 'bucket_0', 'ceramic_plate_0', 'chair_0', 'chopping_sticks_0', 'cloth_0', 'combination_spanner_0', 'condenser_0', 'container_0', 'container_1', 'cooking_pan_0', 'cooking_pot_0', 'cooking_pot_1', 'cordless_driver_0', 'cup_1', 'cup_2', 'diesel_bottle_0', 'disposal_cup_0', 'double_end_ring_spanner_0', 'drill_0', 'drum_stick_0', 'dustbin_0', 'dustpan_0', 'engine_0', 'exercise_mat_0', 'fan_0', 'fun_0', 'game_pad_0', 'globe_0', 'glue_bottle_0', 'green_hat_0', 'guitar_0', 'hex_key_0', 'jerrycan_0', 'kettle_0', 'kitchen_towel_0', 'kitchen_towel_1', 'knife_0', 'knife_1', 'ladder_0', 'lawn_mower_0', 'lid_0', 'lighter_0', 'litter_bin_0', 'mask_0', 'mat_0', 'mobile_phone_0', 'nut_cracker_0', 'paint_can_0', 'paper_towel_0', 'paper_towel_roll_0', 'phone_1', 'phone_10', 'phone_3', 'phone_5', 'phone_6', 'phone_8', 'phone_9', 'plastic_jar_0', 'plastic_ladle_0', 'point_of_sale_0', 'rice_cooker_0', 'rice_cooker_1', 'rope_0', 'sandpaper_0', 'seat_0', 'sellotape_0', 'smartphone_0', 'soap_0', 'spade_0', 'spatula_0', 'speaker_0', 'sponge_0', 'spray_bottle_0', 'stool_2', 'sunglasses_0', 'telephone_0', 'tightening_nut_0', 'tin_0', 'torch_0', 'wall_pouch_0', 'water_bottle_1', 'white_bucket_0', 'wood_0', 'wrench_0']
+
+    # train_ego_paths = [path for path in ego_data_paths if path.split('/')[-1] in valid_objects]
+    # train_ego_paths = ego_data_paths[:int(len(ego_data_paths)*0.95)]
+    # val_ego_paths = ego_data_paths[int(len(ego_data_paths)*0.95):]
+
+    train_transform = transforms.Compose([
+        transforms.Resize((query_params['query_size'], query_params['query_size'])),
+        transforms.RandomRotation(30),
+        # transforms.RandomHorizontalFlip(),
+        transforms.RandomVerticalFlip(),
+        transforms.ToTensor()
+    ])
 
     if split == 'train':
-        data_dir=config.dataset.train_data_dir
-        clip_dir=config.dataset.train_clip_dir
-        meta_dir=config.dataset.train_meta_dir
+        dataset = VisualQuery2DDataset(clip_params, query_params, train_paths, mode=split, transform=train_transform)
+        # ego_dataset = VisualQuery2DDataset(clip_params, query_params, train_ego_paths, mode=split, transform=train_transform)
+        # dataset = ConcatDataset([dataset, ego_dataset])
     elif split == 'val':
-        data_dir=config.dataset.val_data_dir
-        clip_dir=config.dataset.val_clip_dir
-        meta_dir=config.dataset.val_meta_dir
-
-    dataset = QueryVideoDataset(
-        dataset_name=dataset_name,
-        query_params=query_params,
-        clip_params=clip_params,
-        split=split,
-        data_dir=data_dir,
-        clip_dir=clip_dir,
-        meta_dir=meta_dir,
-        clip_reader=clip_reader
-    )
+        dataset = VisualQuery2DDataset(clip_params, query_params, val_paths, mode=split, transform=None)
+        # ego_dataset = VisualQuery2DDataset(clip_params, query_params, train_ego_paths, mode=split, transform=None)
+        # dataset = ConcatDataset([dataset, ego_dataset])
+    elif split == 'test':
+        test_dir = config.dataset.test_dir
+        video_paths = glob.glob(f'{test_dir}/**/*.mp4', recursive=True)
+        dataset = TestDataset(clip_params, query_params, video_paths, transform=None)
 
     return dataset
-
 
 def process_data(config, sample, iter=0, split='train', device='cuda'):
     '''
@@ -72,10 +96,11 @@ def process_data(config, sample, iter=0, split='train', device='cuda'):
         'clip': clip,                           # [B,T,3,H,W]
         'clip_with_bbox': clip_with_bbox,       # [B,T], binary value 0 / 1
         'clip_bbox': clip_bbox,                 # [B,T,4]
-        'query': query                          # [B,3,H2,W2]
+        'query_images': query_images            # [B,3,3,H2,W2]
     '''    
     B, T, _, H, W = sample['clip'].shape
-    B, _, H2, W2 = sample['query'].shape
+    # B, _, H2, W2 = sample['query_images'][:,0].shape
+    B, _, _, H2, W2 = sample['query_images'].shape
     normalization = kornia.enhance.Normalize(mean=NORMALIZE_MEAN, std=NORMALIZE_STD)
 
     brightness = config.train.aug_brightness
@@ -100,6 +125,7 @@ def process_data(config, sample, iter=0, split='train', device='cuda'):
                 K.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.3, hue=0, p=1.0),
                 K.RandomHorizontalFlip(p=0.5),
                 K.RandomResizedCrop((H, W), scale=(0.66, 1.0), ratio=(crop_ratio_min, crop_ratio_max), p=1.0),
+                K.RandomPerspective(distortion_scale=0.5, p=0.5),
                 # K.RandomAffine(affine_degree, [affine_translate, affine_translate], [affine_scale_min, affine_scale_max], 
                 #                 [affine_shear_min, affine_shear_max], p=prob_affine),
                 data_keys=[DataKey.INPUT, DataKey.BBOX_XYXY],  # Just to define the future input here.
@@ -110,7 +136,7 @@ def process_data(config, sample, iter=0, split='train', device='cuda'):
                 K.RandomHorizontalFlip(p=prob_flip),
                 K.RandomResizedCrop((query_size, query_size), scale=(crop_sacle, 1.0), ratio=(crop_ratio_min, crop_ratio_max), p=prob_crop),
                 # K.RandomAffine(affine_degree, [affine_translate, affine_translate], [affine_scale_min, affine_scale_max], 
-                #                 [affine_shear_min, affine_shear_max], p=prob_affine
+                #                 [affine_shear_min, affine_shear_max], p=prob_affine),
                 # K.RandomAffine(affine_degree, [0, 0], [1.0, 1.0], 
                 #                 [1.0, 1.0], p=prob_affine),
                 data_keys=["input"],  # Just to define the future input here.
@@ -118,11 +144,16 @@ def process_data(config, sample, iter=0, split='train', device='cuda'):
                 )
     
     clip = sample['clip']                           # [B,T,C,H,W]
-    query = sample['query']                         # [B,C,H',W']
+    query = sample['query_images']                        # [B,3,C,H',W']
     clip_with_bbox = sample['clip_with_bbox']       # [B,T]
     clip_bbox = sample['clip_bbox']                 # [B,T,4], with value range [0,1], torch axis
     clip_bbox = recover_bbox(clip_bbox, H, W)       # [B,T,4], with range in image pixels, torch axis
     clip_bbox = bbox_torchTocv2(clip_bbox)          # [B,T,4], with range in image pixels, cv2 axis
+    if config.train.use_query_roi and 'query_frame' in sample.keys():
+        query_frame = sample['query_frame']                         # [B,C,H,W]
+        query_frame_bbox = sample['query_frame_bbox']   
+        query_frame_bbox = recover_bbox(query_frame_bbox, H, W)
+        query_frame_bbox = bbox_torchTocv2(query_frame_bbox)        # [B,4]
 
     # augment clips
     if split == 'train' and config.train.aug_clip and (iter > config.train.aug_clip_iter):        
@@ -144,8 +175,9 @@ def process_data(config, sample, iter=0, split='train', device='cuda'):
     
     # augment the query
     if split == 'train' and config.train.aug_query:
-        query = transform_query(query)
-        sample['query'] = query.to(device)
+        # query = transform_query(query)
+        query = torch.stack([transform_query(query[:, i]) for i in range(3)], dim=1)
+        sample['query_images'] = query.to(device)
 
     # normalize the input clips
     sample['clip_origin'] = sample['clip'].clone()
@@ -154,88 +186,81 @@ def process_data(config, sample, iter=0, split='train', device='cuda'):
     sample['clip'] = rearrange(clip, '(b t) c h w -> b t c h w', b=B, t=T)
 
     # normalize input query
-    sample['query_origin'] = sample['query'].clone()
-    sample['query'] = normalization(sample['query'])
+    # sample['query_origin'] = sample['query_images'][:, 0].clone()
+    sample['query_origin'] = sample['query_images'].clone()
+    # sample['query'] = normalization(sample['query_images'][:, 0])
+    sample['query_images'] = torch.stack([normalization(sample['query_images'][:, i]) for i in range(3)], dim=1)
 
     return sample
+
 
 def replicate_sample_for_hnm(gts):
     '''
         gts = {
+            'object_title':        list of length b
             'clip':                 in [b,t,c,h,w]
-            'clip_rigin':           in [b,t,c,h,w]
             'clip_with_bbox':       in [b,t]
-            'before_query':         in [b,t]
+            'clip_idxs':            in [b,t]
             'clip_bbox':            in [b,t,4]
-            'query':                in [b,c,h,w]
-            'query_origin':         in [b,c,h,w]
+            'query_images':         in [b,3,c,h,w]
             'clip_h':               in [b]
             'clip_w':               in [b]
         }
     '''
+    object_titles = gts['object_title']
     clip = gts['clip']
-    clip_origin = gts['clip_origin']
     clip_with_bbox = gts['clip_with_bbox']
-    before_query = gts['before_query']
+    clip_idxs = gts['clip_idxs']
     clip_bbox = gts['clip_bbox']
-    query = gts['query']
-    query_origin = gts['query_origin']
+    query_images = gts['query_images']
     clip_h, clip_w = gts['clip_h'], gts['clip_w']
 
     b, t = clip.shape[:2]
     device = clip.device
 
+    new_object_titles = []
     new_clip = []
-    new_clip_origin = []
     new_clip_with_bbox = []
-    new_before_query = []
+    new_clip_idxs = []
     new_clip_bbox = []
-    new_query = []
-    new_query_origin = []
+    new_query_images = []
     new_clip_h, new_clip_w = [], []
 
     for i in range(b):
         for j in range(b):
             new_clip.append(clip[i])
-            new_clip_origin.append(clip_origin[i])
-            new_query.append(query[j])
-            new_query_origin.append(query_origin[j])
-            if i == j:
+            new_query_images.append(query_images[j])
+            new_object_titles.append(object_titles[i])
+            new_clip_idxs.append(clip_idxs[i])
+            if i == j or object_titles[i] == object_titles[j]:
                 new_clip_with_bbox.append(clip_with_bbox[i])
-                new_before_query.append(before_query[i])
                 new_clip_bbox.append(clip_bbox[i])
             else:
                 new_clip_with_bbox.append(torch.zeros(t).float().to(device))
-                new_before_query.append(torch.ones(t).bool().to(device))
                 new_clip_bbox.append(torch.tensor([[0.0, 0.0, 0.0001, 0.0001]]).repeat(t,1).float().to(device))
             new_clip_h.append(clip_h[i])
             new_clip_w.append(clip_w[i])
     
     new_clip = torch.stack(new_clip)
-    new_clip_origin = torch.stack(new_clip_origin)
     new_clip_with_bbox = torch.stack(new_clip_with_bbox)
-    new_before_query = torch.stack(new_before_query)
     new_clip_bbox = torch.stack(new_clip_bbox)
+    new_clip_idxs = torch.stack(new_clip_idxs)
     new_clip_h = torch.stack(new_clip_h)
     new_clip_w = torch.stack(new_clip_w)
-    new_query = torch.stack(new_query)
-    new_query_origin = torch.stack(new_query_origin)
-
+    new_query_images = torch.stack(new_query_images)
+    
     new_gts = {
+            'object_title': new_object_titles,
             'clip': new_clip,                       # in [b^2,t,c,h,w]
-            'clip_origin': new_clip_origin,         # in [b^2,t,c,h,w]
             'clip_with_bbox': new_clip_with_bbox,   # in [b^2,t]
-            'before_query': new_before_query,       # in [b^2,t]
+            'clip_idxs': new_clip_idxs,             # in [b^2,t]
             'clip_bbox': new_clip_bbox,             # in [b^2,t,4]
-            'query': new_query,                     # in [b^2,c,h,w]
-            'query_origin': new_query_origin,       # in [b^2,c,h,w]
+            'query_images': new_query_images,       # in [b^2,c,h,w]
             'clip_h': new_clip_h,                   # in [b^2]
             'clip_w': new_clip_w,                   # in [b^2]
         }
     return new_gts
 
-def unnormalize(img, mean, std):
-    return img * std + mean
 
 def normalize_bbox(bbox, h, w):
     '''
@@ -412,3 +437,52 @@ def bbox_xyhwToxyxy(bbox_xyhw):
     bbox_xyxy = torch.cat([bbox_center - bbox_hw_half, bbox_center + bbox_hw_half], dim=-1)
     return bbox_xyxy
 
+def recover_boxes_to_original(bboxes_norm_sq, orig_h, orig_w):
+    """
+    Invert your padding+normalize pipeline.
+    Args:
+        bboxes_norm_sq: Tensor [T,4] in [0,1], normalized by the padded square size
+                        (this is what __getitem__ returns as 'clip_bbox').
+        orig_h, orig_w: integers, original frame height/width (before pad/resize).
+    Returns:
+        b_abs: Tensor [T,4] absolute pixel coords on the original frame (y1,x1,y2,x2).
+        b_norm_orig: Tensor [T,4] normalized by (orig_h, orig_w).
+    """
+    if bboxes_norm_sq.numel() == 0:
+        return bboxes_norm_sq, bboxes_norm_sq
+
+    # Size of the padded square before resize
+    h_pad = w_pad = max(orig_h, orig_w)
+
+    # Compute exact padding put on each side (handle odd differences)
+    if orig_h < orig_w:
+        # padded in height: pad equally (floor on top, ceil on bottom)
+        total = orig_w - orig_h
+        pad_top  = total // 2
+        pad_bot  = total - pad_top
+        pad_left = pad_right = 0
+    else:
+        # padded in width
+        total = orig_h - orig_w
+        pad_left = total // 2
+        pad_right = total - pad_left
+        pad_top = pad_bot = 0
+
+    # 1) un-normalize from square
+    b = bboxes_norm_sq.clone() * float(h_pad)  # square so h_pad == w_pad
+
+    # 2) remove padding offsets
+    # y's: indices 0,2 ; x's: indices 1,3
+    b[:, [0, 2]] -= pad_top
+    b[:, [1, 3]] -= pad_left
+
+    # 3) clip to original image bounds
+    b[:, [0, 2]] = b[:, [0, 2]].clamp(0, orig_h - 1)
+    b[:, [1, 3]] = b[:, [1, 3]].clamp(0, orig_w - 1)
+
+    # 4) (optional) normalize by original H/W
+    b_norm_orig = b.clone()
+    b_norm_orig[:, [0, 2]] /= float(orig_h)
+    b_norm_orig[:, [1, 3]] /= float(orig_w)
+
+    return b, b_norm_orig

@@ -19,11 +19,10 @@ from model.corr_clip_spatial_transformer2_anchor_2heads_hnm import ClipMatcher
 from utils import exp_utils, train_utils, dist_utils
 from dataset import dataset_utils
 from func.train_anchor import train_epoch, validate
-
+from utils.vis_utils import visualization
 import transformers
 import wandb
 
-from utils.vis_utils import visualization
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train hand reconstruction network')
@@ -39,6 +38,7 @@ def parse_args():
 
 
 def main():
+    wandb.login(key="a1d9c87a2f1add8decdef22e51ec34a785f78115")  # sẽ lấy từ biến môi trường
     # Get args and config
     args = parse_args()
     logger, output_dir, tb_log_dir = exp_utils.create_logger(config, args.cfg, phase='train')
@@ -86,7 +86,11 @@ def main():
     # get optimizer
     optimizer = train_utils.get_optimizer(config, model)
     # schedular = train_utils.get_schedular(config, optimizer)
-    schedular = transformers.get_linear_schedule_with_warmup(optimizer,
+    # schedular = transformers.get_linear_schedule_with_warmup(optimizer,
+    #                                                          num_warmup_steps=config.train.schedular_warmup_iter,
+    #                                                          num_training_steps=config.train.total_iteration)
+
+    schedular = transformers.get_cosine_schedule_with_warmup(optimizer,
                                                              num_warmup_steps=config.train.schedular_warmup_iter,
                                                              num_training_steps=config.train.total_iteration)
     scaler = torch.cuda.amp.GradScaler()
@@ -102,6 +106,18 @@ def main():
             print('LR after resume {}'.format(optimizer.param_groups[0]['lr']))
         except:
             print('Resume failed')
+    else:
+        if os.path.exists(config.model.cpt_path):
+            checkpoint = torch.load(config.model.cpt_path, map_location=device)
+            state_dict = checkpoint["state_dict"]
+            missing_states = set(model.state_dict().keys()) - set(state_dict.keys())
+            if len(missing_states) > 0:
+                warnings.warn("Missing keys ! : {}".format(missing_states))
+            model.load_state_dict(state_dict, strict=True)
+            print('Load weights succesfully')
+        else:
+            print('No checkpoint found')
+            
 
     # distributed training
     ddp = False
@@ -137,6 +153,7 @@ def main():
 
     # train
     for epoch in range(start_ep, end_ep):
+        model.train()
         train_sampler.set_epoch(epoch)
         train_epoch(config,
                     loader=train_loader,

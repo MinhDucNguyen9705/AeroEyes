@@ -15,7 +15,6 @@ from dataset import dataset_utils
 import wandb
 from einops import rearrange
 from utils.loss_utils import GiouLoss
-from metrics.utils import postprocess_results, spatio_temporal_IoU, calculate_confusion_matrix
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +24,8 @@ def train_epoch(config, loader, model, optimizer, schedular, scaler, epoch, outp
     loss_meters = exp_utils.AverageMeters()
     
     train_utils.set_model_train(config, model, ddp)
-
     batch_end = time.time()
+    # print(len(loader))
     for batch_idx, sample in enumerate(loader):
         iter_num = batch_idx + len(loader) * epoch
 
@@ -36,7 +35,7 @@ def train_epoch(config, loader, model, optimizer, schedular, scaler, epoch, outp
         end = time.time()
 
         # reconstruction loss
-        clips, queries = sample['clip'], sample['query']
+        clips, queries = sample['clip'], sample['query_images']
         #with autocast():
         if config.train.use_query_roi and 'query_frame' in sample.keys():
             preds = model(clips, 
@@ -83,6 +82,8 @@ def train_epoch(config, loader, model, optimizer, schedular, scaler, epoch, outp
             msg = msg[:-2]
             logger.info(msg)
         
+
+        # visuallize prediction
         # if iter_num % config.vis_freq == 0 and rank == 0:
         #     vis_utils.vis_pred_clip(sample=sample,
         #                             pred=preds_top,
@@ -110,8 +111,6 @@ def train_epoch(config, loader, model, optimizer, schedular, scaler, epoch, outp
         if batch_idx < 3:
             torch.cuda.empty_cache()
 
-
-
 def validate(config, loader, model, epoch, output_dir, device, rank, wandb_run=None, ddp=True):
     model.eval()
     metrics = {}
@@ -123,7 +122,7 @@ def validate(config, loader, model, epoch, output_dir, device, rank, wandb_run=N
             sample = exp_utils.dict_to_cuda(sample)
             sample = dataset_utils.process_data(config, sample, split='val', device=device)     # normalize and data augmentations on GPU
 
-            clips, queries = sample['clip'], sample['query']
+            clips, queries = sample['clip'], sample['query_images']
             if config.train.use_query_roi and 'query_frame' in sample.keys():
                 preds = model(clips, 
                             sample['query_frame'], 
@@ -132,6 +131,7 @@ def validate(config, loader, model, epoch, output_dir, device, rank, wandb_run=N
             else:
                 preds = model(clips, queries, training=False, fix_backbone=config.model.fix_backbone)
             results, preds_top = val_performance(config, preds, sample)
+            
             try:
                 for k, v in results.items():
                     if k in metrics.keys():
@@ -195,7 +195,7 @@ def val_performance(config, preds, gts, prob_theta=0.5):
     gt_hw = rearrange(gts['hw'], 'b t c -> (b t) c')
     gt_bbox = rearrange(gts['clip_bbox'], 'b t c -> (b t) c')
     gt_prob = gts['clip_with_bbox'].reshape(-1)
-    gt_before_query = gts['before_query'].reshape(-1)
+    # gt_before_query = gts['before_query'].reshape(-1)
 
     # bbox loss
     loss_center = F.l1_loss(pred_center[gt_prob.bool()], gt_center[gt_prob.bool()])
@@ -210,11 +210,13 @@ def val_performance(config, preds, gts, prob_theta=0.5):
     
     # occurance loss
     weight = torch.tensor(config.loss.prob_bce_weight).to(gt_prob.device)
-    weight_ = weight[gt_prob[gt_before_query.bool()].long()].reshape(-1)
+    # weight_ = weight[gt_prob[gt_before_query.bool()].long()].reshape(-1)
+    weight_ = weight[gt_prob.long()].reshape(-1)
     criterion = nn.BCEWithLogitsLoss(reduce=False)
-    loss_prob = (criterion(pred_prob[gt_before_query.bool()].float(), 
-                           gt_prob[gt_before_query.bool()].float()) * weight_).mean()
-    
+    # loss_prob = (criterion(pred_prob[gt_before_query.bool()].float(), 
+    #                        gt_prob[gt_before_query.bool()].float()) * weight_).mean()
+    loss_prob = (criterion(pred_prob.float(), 
+                           gt_prob.float()) * weight_).mean()
     if 'prob_refine' in preds.keys():
         pred_prob = pred_prob_refine.reshape(-1)
     
@@ -226,22 +228,6 @@ def val_performance(config, preds, gts, prob_theta=0.5):
     precision_5, recall_5, f1_score_5 = calculate_confusion_matrix(pred_prob, gt_prob, prob_theta=0.5)
     precision_4, recall_4, f1_score_4 = calculate_confusion_matrix(pred_prob, gt_prob, prob_theta=0.4)
     precision_3, recall_3, f1_score_3 = calculate_confusion_matrix(pred_prob, gt_prob, prob_theta=0.3)
-    
-    loss = {
-        # losses
-        'loss_bbox_center': loss_center.item(),
-        'loss_bbox_hw': loss_hw.item(),
-        'loss_bbox_giou': loss_giou.item(),
-        'loss_prob': loss_prob.item(),
-        # information
-        'iou': iou.item(),
-        'iou_25': iou_25.item(),
-        'giou': giou.item(),
-        'prob_accuracy': prob_accuracy.item(),
-        'prob_accuracy_0.6': prob_accuracy_2.item(),
-        'prob_accuracy_0.7': prob_accuracy_3.item(),
-        'prob_accuracy_0.65': prob_accuracy_4.item(),
-    }
 
     loss = {
         # losses
@@ -286,3 +272,107 @@ def val_performance(config, preds, gts, prob_theta=0.5):
     print("ST IoU at 0.1 threshold:", test_st_iou)
 
     return loss, pred_top
+
+def calculate_confusion_matrix(pred_prob, gt_prob, prob_theta=0.5):
+    prob_pred = (torch.sigmoid(pred_prob) > prob_theta).float()
+    true_positive = (prob_pred * gt_prob).sum()
+    false_positive = (prob_pred * (1 - gt_prob)).sum()
+    false_negative = ((1 - prob_pred) * gt_prob).sum()
+
+    precision = true_positive / (true_positive + false_positive + 1e-8)
+    recall = true_positive / (true_positive + false_negative + 1e-8)
+    f1_score = 2 * (precision * recall) / (precision + recall + 1e-8)
+
+    return precision, recall, f1_score
+
+# output = model(batch['clip'].to(device), batch['query_images'].to(device), training=False, fix_backbone=True)
+# final_output = postprocess_results(output, 0.3)
+# print(spatio_temporal_IoU(final_output, batch))
+def calculate_iou(box_g, box_p):
+    """
+    Calculates the spatial Intersection over Union (IoU) of two 2D bounding boxes.
+    
+    Bounding box format is expected to be [y_min, x_min, y_max, x_max].
+
+    Args:
+        box_g (list or np.array): Ground-truth bounding box.
+        box_p (list or np.array): Predicted bounding box.
+
+    Returns:
+        float: The IoU value (between 0.0 and 1.0).
+    """
+    y_min_inter = max(box_g[0], box_p[0])
+    x_min_inter = max(box_g[1], box_p[1])
+    y_max_inter = min(box_g[2], box_p[2])
+    x_max_inter = min(box_g[3], box_p[3])
+
+    width_inter = max(0, x_max_inter - x_min_inter)
+    height_inter = max(0, y_max_inter - y_min_inter)
+    area_inter = width_inter * height_inter
+
+    area_g = (box_g[2] - box_g[0]) * (box_g[3] - box_g[1])
+    area_p = (box_p[2] - box_p[0]) * (box_p[3] - box_p[1])
+
+    area_union = area_g + area_p - area_inter
+
+    if area_union == 0:
+        return 0.0
+    
+    iou = area_inter / area_union
+
+    return iou
+
+def postprocess_results(preds, threshold=0.5):
+    max_probs, max_indices = torch.max(torch.sigmoid(preds['prob']), dim=-1)
+    max_indices_expanded = max_indices.unsqueeze(-1).unsqueeze(-1)  # Shape: (B, T, 1, 1)
+    final_results = {
+        'center': torch.gather(
+                            preds['center'],
+                            dim=2, 
+                            index=max_indices_expanded.expand(-1, -1, 1, 2) 
+                        ).squeeze(2),               # Shape: (B, T, 2)
+        'hw': torch.gather(
+                            preds['hw'],
+                            dim=2,
+                            index=max_indices_expanded.expand(-1, -1, 1, 2)
+                        ).squeeze(2),               # Shape: (B, T, 2)
+        'bbox': torch.gather(
+                            preds['bbox'],
+                            dim=2, 
+                            index=max_indices_expanded.expand(-1, -1, 1, 4) 
+                        ).squeeze(2),               # Shape: (B, T, 4)
+        'clip_with_bbox': max_probs > threshold     # Shape: (B, T)
+    }
+    return final_results
+
+def spatio_temporal_IoU(preds, gt):
+
+    batch_size, num_frames = gt['clip_with_bbox'].shape
+    bbox_frames_g = [torch.nonzero(gt['clip_with_bbox'][b]).view(-1) for b in range(batch_size)]
+    bbox_frames_p = [torch.nonzero(preds['clip_with_bbox'][b]).view(-1) for b in range(batch_size)]
+
+    results = []
+    count_neg = 0
+
+    for b in range (batch_size):
+
+        set_bbox_frames_g = set(bbox_frames_g[b].tolist())
+        set_bbox_frames_p = set(bbox_frames_p[b].tolist())
+        frames_intersection = set_bbox_frames_g.intersection(set_bbox_frames_p)
+        frames_union = set_bbox_frames_g.union(set_bbox_frames_p)
+
+        if not frames_union:
+            stiou = 0.0
+            count_neg += 1
+        else:
+            sum_iou = 0
+            for f in frames_intersection:
+                box_g = gt['clip_bbox'][b, f]
+                box_p = preds['bbox'][b, f]
+                iou_f = calculate_iou(box_g, box_p)
+                sum_iou += iou_f
+            size_union = len(frames_union)
+            stiou = sum_iou / size_union
+        results.append(stiou)
+
+    return sum(results)/(len(results) - count_neg + 1e-8)

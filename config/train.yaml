@@ -3,34 +3,26 @@ exp_group: 'vq2d'
 output_dir: './output/'
 log_dir: './log'
 workers: 16
-print_freq: 194
+print_freq: 6
 vis_freq: 1000
 eval_vis_freq: 100
 seed: 42
 
 # dataset config
 dataset:
-  name: 'ego4d_egotracks'
-  name_val: 'ego4d_egotracks'
+  name: 'zalo'
+  name_val: 'zalo'
   query_size: 448
   clip_size_fine: 448
   clip_size_coarse: 448
   clip_num_frames: 30
   clip_num_frames_val: 30
   clip_sampling: 'rand'
-  clip_reader: 'decord_random'
+  clip_reader: 'decord_balance'
   clip_reader_val: 'decord_balance'
-  frame_interval: 1
+  frame_interval: 5
   query_square: True
   padding_value: 'zero' # ['mean', 'zero']
-  train_data_dir: '/kaggle/input/ego4d-vql/ego4d/train/v2'
-  train_clip_dir: '/kaggle/input/ego4d-vql/ego4d/train/v2/clips'
-  train_meta_dir: '/kaggle/input/ego4d-vql/ego4d/train'
-  val_data_dir: '/kaggle/input/ego4d-vql/ego4d/val/v2'
-  val_clip_dir: '/kaggle/input/ego4d-vql/ego4d/val/v2/clips'
-  val_meta_dir: '/kaggle/input/ego4d-vql/ego4d/val'
-
-
 
 # model config
 model:
@@ -42,7 +34,7 @@ model:
   type_transformer: 'global'
   resolution_transformer: 8
   resolution_anchor_feat: 16
-  pe_transformer: 'zero'
+  pe_transformer: 'zero' #'zero'
   window_transformer: 5
   positive_threshold: 0.2
   positive_topk: 5
@@ -53,22 +45,23 @@ loss:
   weight_bbox_hw: 1.0
   weight_bbox_giou: 0.3
   weight_bbox_ratio: 1.0
-  weight_prob: 100.0
+  weight_prob: 1.0
+  weight_aux_loss: 0.1
   prob_bce_weight: [1.0, 1.0]
 
 # training config
 train:
-  resume: True
-  batch_size: 8
-  total_iteration: 30000
-  lr: 0.0003
-  weight_decay: 0.005
+  resume: False
+  batch_size: 4
+  total_iteration: 10000
+  lr: 0.0001
+  weight_decay: 0.05
   schedualr_milestones: [7000, 14000, 20000, 25000]
   schedular_gamma: 0.3
   grad_max: 20.0
   accumulation_step: 1
   aug_clip: True
-  aug_query: False
+  aug_query: True
   aug_clip_iter: -1
   aug_brightness: 0.3
   aug_contrast: 0.3
@@ -86,7 +79,7 @@ train:
   aug_prob_flip: 0.5
   aug_prob_crop: 1.0
   aug_prob_affine: 1.0
-  use_hnm: False # True
+  use_hnm: True
 
 # test config
 test:
