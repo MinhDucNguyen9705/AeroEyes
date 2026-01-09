@@ -13,3 +13,4 @@ DS_Store
 .env
 *.mp4
 *.avi
+cpt_best_iou.pth.tar
