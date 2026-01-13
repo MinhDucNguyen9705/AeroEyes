@@ -24,7 +24,7 @@ def visualization(config, model, dataloader, epoch, device, num_samples=4):
 
     with torch.no_grad():
         clips = batch['clip'].to(device)
-        queries = batch['query'].to(device)
+        queries = batch['query_images'].to(device)
         output = model(clips, queries, training=False, fix_backbone=True)
         final_output = postprocess_results(output)
         
