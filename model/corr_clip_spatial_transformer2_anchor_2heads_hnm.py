@@ -66,14 +66,20 @@ class ClipMatcher(nn.Module):
         assert self.type_transformer in ['local', 'global']
         self.window_transformer = config.model.window_transformer
         self.resolution_transformer = config.model.resolution_transformer
-        self.resolution_anchor_feat = config.model.resolution_anchor_feat
+        # self.resolution_anchor_feat = config.model.resolution_anchor_feat
 
-        self.anchors_xyhw = generate_anchor_boxes_on_regions(image_size=[self.clip_size_coarse, self.clip_size_coarse],
-                                                        num_regions=[self.resolution_anchor_feat, self.resolution_anchor_feat],
-                                                        base_sizes=base_sizes,
-                                                        aspect_ratios=aspect_ratios)
-        self.anchors_xyhw = self.anchors_xyhw / self.clip_size_coarse   # [R^2*N*M,4], value range [0,1], represented by [c_x,c_y,h,w] in torch axis
-        self.anchors_xyxy = bbox_xyhwToxyxy(self.anchors_xyhw)
+        self.anchors_xyhw_list = []
+        self.anchors_xyxy_list = []
+        self.resolution_anchor_feat_list = [self.resolution_transformer * 4, self.resolution_transformer * 2, self.resolution_transformer]
+        for resolution_anchor_feat in self.resolution_anchor_feat_list:
+            anchors_xyhw = generate_anchor_boxes_on_regions(image_size=[self.clip_size_coarse, self.clip_size_coarse],
+                                                            num_regions=[resolution_anchor_feat, resolution_anchor_feat],
+                                                            base_sizes=base_sizes,
+                                                            aspect_ratios=aspect_ratios)
+            anchors_xyhw = anchors_xyhw / self.clip_size_coarse   # [R^2*N*M,4], value range [0,1], represented by [c_x,c_y,h,w] in torch axis
+            anchors_xyxy = bbox_xyhwToxyxy(anchors_xyhw)
+            self.anchors_xyhw_list.append(anchors_xyhw)
+            self.anchors_xyxy_list.append(anchors_xyxy)
 
         # query down heads
         self.query_down_heads = []
@@ -100,25 +106,14 @@ class ClipMatcher(nn.Module):
         # clip-query correspondence
         self.CQ_corr_transformer = nn.ModuleList([])
         for _ in range(1):
-            # self.CQ_corr_transformer.append(
-            #     torch.nn.TransformerDecoderLayer(
-            #         d_model=256,
-            #         nhead=4,
-            #         dim_feedforward=1024,
-            #         dropout=0.0,
-            #         activation='gelu',
-            #         batch_first=True
-            #     )
-            # )
             self.CQ_corr_transformer.append(
-                DecoderLayer(
+                torch.nn.TransformerDecoderLayer(
                     d_model=256,
                     nhead=4,
                     dim_feedforward=1024,
-                    num_experts=8,
-                    top_k=1,
-                    capacity_factor=1.5,
                     dropout=0.0,
+                    activation='gelu',
+                    batch_first=True
                 )
             )
         # self.CQ_corr_transformer = nn.ModuleList(self.CQ_corr_transformer)
@@ -147,32 +142,20 @@ class ClipMatcher(nn.Module):
         self.feat_corr_transformer = []
         self.num_transformer = config.model.num_transformer
         for _ in range(self.num_transformer):
-            # self.feat_corr_transformer.append(
-            #         torch.nn.TransformerEncoderLayer(
-            #             d_model=256, 
-            #             nhead=8,
-            #             dim_feedforward=2048,
-            #             dropout=0.0,
-            #             activation='gelu',
-            #             batch_first=True
-            #     ))
             self.feat_corr_transformer.append(
-                    EncoderLayer(
+                    torch.nn.TransformerEncoderLayer(
                         d_model=256, 
                         nhead=8,
                         dim_feedforward=2048,
-                        num_experts=4,
-                        top_k=1,
-                        capacity_factor=1.5,
                         dropout=0.0,
-                    )
-                )
+                        activation='gelu',
+                        batch_first=True
+                ))
         self.feat_corr_transformer = nn.ModuleList(self.feat_corr_transformer)
         self.temporal_mask = None
-        self.aux_loss = 0
 
         # output head
-        self.head = Head(in_dim=256, in_res=self.resolution_transformer, out_res=self.resolution_anchor_feat)
+        self.head = Head(in_dim=256, in_res=1, out_res=1)
 
     def init_weights_linear(self, m):
         if type(m) == nn.Linear:
@@ -212,16 +195,16 @@ class ClipMatcher(nn.Module):
             return out
         
         
-    def replicate_for_hnm(self, query_feat, clip_feat):
+    def replicate_for_hnm(self, query_feat, clip_feat, b):
         '''
-        query_feat in shape [b,c,h,w]
+        query_feat in shape [b*q,c,h,w]
         clip_feat in shape [b*t,c,h,w]
         '''
-        b = query_feat.shape[0]
         bt = clip_feat.shape[0]
         t = bt // b
         
         clip_feat = rearrange(clip_feat, '(b t) c h w -> b t c h w', b=b, t=t)
+        query_feat = rearrange(query_feat, '(b q) c h w -> b q c h w', b=b)
 
         new_clip_feat, new_query_feat = [], []
         for i in range(b):
@@ -230,9 +213,11 @@ class ClipMatcher(nn.Module):
                 new_query_feat.append(query_feat[j])
 
         new_clip_feat = torch.stack(new_clip_feat)      # [b^2,t,c,h,w]
-        new_query_feat = torch.stack(new_query_feat)    # [b^2,c,h,w]
+        new_query_feat = torch.stack(new_query_feat)    # [b^2,q,c,h,w]
 
         new_clip_feat = rearrange(new_clip_feat, 'b t c h w -> (b t) c h w')
+        new_query_feat = rearrange(new_query_feat, 'b q c h w -> (b q) c h w')
+        
         return new_clip_feat, new_query_feat
 
 
@@ -263,7 +248,7 @@ class ClipMatcher(nn.Module):
         query_feat, clip_feat = all_feat.split([b*q, b*t], dim=0)
 
         if self.config.train.use_hnm and training:
-            clip_feat, query_feat = self.replicate_for_hnm(query_feat, clip_feat)   # b -> b^2
+            clip_feat, query_feat = self.replicate_for_hnm(query_feat, clip_feat, b)   # b -> b^2
             b = b**2
         
         # find spatial correspondence between query-frame
@@ -273,44 +258,57 @@ class ClipMatcher(nn.Module):
         clip_feat = rearrange(clip_feat, 'b c h w -> b (h w) c')                                         # [b*t,n,c]
 
         for layer in self.CQ_corr_transformer:
-            clip_feat, aux_loss = layer(clip_feat, query_feat)                            # [b*t,n,c]
-            self.aux_loss += aux_loss
+            clip_feat = layer(clip_feat, query_feat)                                     # [b*t,n,c]
         clip_feat = rearrange(clip_feat, 'b (h w) c -> b c h w', h=h, w=w)                # [b*t,c,h,w]
         # down-size features and find spatial-temporal correspondence
+        pyramid_feats = []
         for head in self.down_heads:
+            if clip_feat.shape[-1] in self.resolution_anchor_feat_list:
+                pyramid_feats.append(clip_feat)
             clip_feat = head(clip_feat)
             if list(clip_feat.shape[-2:]) == [self.resolution_transformer]*2:
+                pyramid_feats.append(clip_feat)
                 clip_feat = rearrange(clip_feat, '(b t) c h w -> b (t h w) c', b=b) + self.pe_3d
                 mask = self.get_mask(clip_feat, t)
                 for layer in self.feat_corr_transformer:
-                    clip_feat, aux_loss = layer(clip_feat, src_mask=mask)
-                    self.aux_loss += aux_loss
+                    clip_feat = layer(clip_feat, src_mask=mask)
                 clip_feat = rearrange(clip_feat, 'b (t h w) c -> (b t) c h w', b=b, t=t, h=self.resolution_transformer, w=self.resolution_transformer)
                 break
-        
         # refine anchors
-        anchors_xyhw = self.anchors_xyhw.to(clip_feat.device)                   # [N,4]
-        anchors_xyxy = self.anchors_xyxy.to(clip_feat.device)                   # [N,4]
-        anchors_xyhw = anchors_xyhw.reshape(1,1,-1,4)                           # [1,1,N,4]
-        anchors_xyxy = anchors_xyxy.reshape(1,1,-1,4)                           # [1,1,N,4]
+        all_center, all_hw, all_bbox, all_prob, all_anchor = [], [], [], [], []
+        for i, clip_feat in enumerate(pyramid_feats):
+            anchors_xyhw = self.anchors_xyhw_list[i].to(clip_feat.device)                   # [N,4]
+            anchors_xyxy = self.anchors_xyxy_list[i].to(clip_feat.device)                   # [N,4]
+            anchors_xyhw = anchors_xyhw.reshape(1,1,-1,4)                           # [1,1,N,4]
+            anchors_xyxy = anchors_xyxy.reshape(1,1,-1,4)                           # [1,1,N,4]
+            
+            bbox_refine, prob = self.head(clip_feat)                                # [b*t,N=h*w*n*m,c]
+            bbox_refine = rearrange(bbox_refine, '(b t) N c -> b t N c', b=b, t=t)  # [b,t,N,4], in xyhw frormulation
+            prob = rearrange(prob, '(b t) N c -> b t N c', b=b, t=t)                # [b,t,N,1]
+            bbox_refine += anchors_xyhw                                             # [b,t,N,4]
+    
+            center, hw = bbox_refine.split([2,2], dim=-1)                           # represented by [c_x, c_y, h, w]
+            hw = 0.5 * hw                                                           # anchor's hw is defined as real hw
+            bbox = torch.cat([center - hw, center + hw], dim=-1)                    # [b,t,N,4]
+
+            all_center.append(center)
+            all_hw.append(hw)
+            all_bbox.append(bbox)
+            all_prob.append(prob.squeeze(-1))
+            all_anchor.append(anchors_xyxy)
+
+        center = torch.cat(all_center, dim=2)
+        hw     = torch.cat(all_hw, dim=2)
+        bbox   = torch.cat(all_bbox, dim=2)
+        prob   = torch.cat(all_prob, dim=2)
+        anchor = torch.cat(all_anchor, dim=2)
         
-        bbox_refine, prob = self.head(clip_feat)                                # [b*t,N=h*w*n*m,c]
-        bbox_refine = rearrange(bbox_refine, '(b t) N c -> b t N c', b=b, t=t)  # [b,t,N,4], in xyhw frormulation
-        prob = rearrange(prob, '(b t) N c -> b t N c', b=b, t=t)                # [b,t,N,1]
-        bbox_refine += anchors_xyhw                                             # [b,t,N,4]
-
-        center, hw = bbox_refine.split([2,2], dim=-1)                           # represented by [c_x, c_y, h, w]
-        hw = 0.5 * hw                                                           # anchor's hw is defined as real hw
-        bbox = torch.cat([center - hw, center + hw], dim=-1)                    # [b,t,N,4]
-
-        self.aux_loss /= len(self.feat_corr_transformer) + len(self.CQ_corr_transformer)
         result = {
             'center': center,           # [b,t,N,2]
             'hw': hw,                   # [b,t,N,2]
             'bbox': bbox,               # [b,t,N,4]
             'prob': prob.squeeze(-1),   # [b,t,N]
-            'anchor': anchors_xyxy,     # [1,1,N,4]
-            'aux_loss': self.aux_loss   # [0,]
+            'anchor': anchors_xyxy      # [1,1,N,4]
         }
         return result
     

@@ -143,93 +143,6 @@ def get_losses_with_anchor(config, preds, gts):
 
     return loss, pred_top, gts
 
-
-def get_losses_head(config, refine_prob, gts, preds_top):
-    '''
-    refine_prob in shape [b,t]
-    '''
-    b, t = refine_prob.shape
-    gt_prob = gts['clip_with_bbox']         # [b,t]
-    gt_before_query = gts['before_query']   # [b,t]
-    gt_bbox = gts['clip_bbox']              # [b,t,4]
-    gt_prob = gt_prob.reshape(-1)
-    gt_before_query = gt_before_query.reshape(-1)
-    gt_bbox = gt_bbox.reshape(-1,4)
-
-    refine_prob = refine_prob.reshape(-1)
-    pred_bbox = preds_top['bbox'].reshape(-1,4)
-
-    iou, giou, _ = GiouLoss(pred_bbox, gt_bbox)     # [b*t]
-    gt_prob_refine = (iou > config.model.positive_threshold).float()
-
-    weight = torch.tensor(config.loss.prob_bce_weight).to(gt_prob.device)
-    weight_ = weight[gt_prob_refine[gt_before_query.bool()].long()]
-    criterion = nn.BCEWithLogitsLoss(reduce=False)
-    loss_prob_refine = (criterion(refine_prob[gt_before_query.reshape(-1).bool()], 
-                                  gt_prob_refine[gt_before_query.bool()]) * weight_).mean()
-    loss = {
-        'loss_refine_prob': loss_prob_refine,
-        'weight_refine_prob': 1.0
-    }
-    return loss, gt_prob_refine.reshape(b,t)
-
-
-def get_losses(config, preds, gts):
-    pred_center = rearrange(preds['center'], 'b t c -> (b t) c')
-    pred_hw = rearrange(preds['hw'], 'b t c -> (b t) c')
-    pred_bbox = rearrange(preds['bbox'], 'b t c -> (b t) c')
-    pred_prob = preds['prob'].reshape(-1)
-
-    if 'center' not in gts.keys():
-        gts['center'] = (gts['clip_bbox'][...,:2] + gts['clip_bbox'][...,2:]) / 2.0
-    if 'hw' not in gts.keys():
-        gts['hw'] = gts['center'] - gts['clip_bbox'][...,:2]   # actually half hw
-    gt_center = rearrange(gts['center'], 'b t c -> (b t) c')
-    gt_hw = rearrange(gts['hw'], 'b t c -> (b t) c')
-    gt_bbox = rearrange(gts['clip_bbox'], 'b t c -> (b t) c')
-    gt_prob = gts['clip_with_bbox'].reshape(-1)
-    gt_before_query = gts['before_query'].reshape(-1)
-    gt_ratio = get_bbox_ratio(gt_hw, gt_hw.device).reshape(-1)
-
-    # bbox loss
-    loss_center = F.l1_loss(pred_center[gt_prob.bool()], gt_center[gt_prob.bool()])
-    loss_hw = F.l1_loss(pred_hw[gt_prob.bool()], gt_hw[gt_prob.bool()])
-    #loss_bbox = F.l1_loss(pred_bbox[gt_prob.bool()], gt_bbox[gt_prob.bool()])
-    iou, giou, loss_giou = GiouLoss(pred_bbox, gt_bbox, mask=gt_prob.bool())
-    if 'bbox_ratio' in preds.keys():
-        pred_ratio = preds['bbox_ratio'].reshape(-1)
-        loss_ratio = F.l1_loss(pred_ratio[gt_prob.bool()], gt_ratio[gt_prob.bool()])
-    
-    # occurance loss
-    weight = torch.tensor(config.loss.prob_bce_weight).to(gt_prob.device)
-    weight_ = weight[gt_prob[gt_before_query.bool()].long()].reshape(-1)
-    criterion = nn.BCEWithLogitsLoss(reduce=False)
-    loss_prob = (criterion(pred_prob[gt_before_query.bool()], gt_prob[gt_before_query.bool()]) * weight_).mean()
-    #loss_prob = F.binary_cross_entropy(pred_prob, gt_prob)
-    loss = {
-        'loss_bbox_center': loss_center,
-        'loss_bbox_hw': loss_hw,
-        #'loss_bbox': loss_bbox,
-        'loss_bbox_giou': loss_giou,
-        'loss_prob': loss_prob,
-        # weights
-        #'weight_bbox': config.loss.weight_bbox,
-        'weight_bbox_center': config.loss.weight_bbox_center,
-        'weight_bbox_hw': config.loss.weight_bbox_hw,
-        'weight_bbox_giou': config.loss.weight_bbox_giou,
-        'weight_prob': config.loss.weight_prob,
-        # information
-        'iou': iou.detach(),
-        'giou': giou.detach()
-    }
-    if 'bbox_ratio' in preds.keys():
-        loss.update({
-                'loss_bbox_ratio': loss_ratio,
-                'weight_bbox_ratio': config.loss.weight_bbox_ratio
-            })
-    return loss
-
-
 def GiouLoss(bbox_p, bbox_g, mask=None):
     """
     :param bbox_p: predict of bbox(N,4)(x1,y1,x2,y2)
@@ -277,25 +190,6 @@ def GiouLoss(bbox_p, bbox_g, mask=None):
     else:
         loss_giou = torch.mean(1.0 - giou)
     return iou, giou, loss_giou
-
-
-def get_bbox_ratio(hw, device):
-    '''
-    params:
-        hw: height and width of bbox, in shape [B,2]
-    return:
-        ratio: closest bbox aspect ratio in default_aspect_ratios, in shape [B]
-    '''
-    b = hw.shape[0]
-    default_ratios = default_aspect_ratios.to(device)
-
-    h, w = hw.split([1,1], dim=-1)
-    ratio = h / w
-    distance = torch.abs(ratio.repeat(1, default_ratios.shape[0]) - default_ratios.unsqueeze(0))     # [b,n]
-    idx = torch.argmax(distance, dim=-1)    # [b]
-    ratio_quant = torch.tensor([default_ratios[it.long()] for it in idx]).to(device)
-    return ratio_quant
-
 
 def focal_loss(inputs, targets, alpha=0.25, gamma=2.0):
     '''
