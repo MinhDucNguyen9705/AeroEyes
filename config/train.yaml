@@ -45,8 +45,7 @@ loss:
   weight_bbox_hw: 1.0
   weight_bbox_giou: 0.3
   weight_bbox_ratio: 1.0
-  weight_prob: 1.0
-  weight_aux_loss: 0.1
+  weight_prob: 100.0
   prob_bce_weight: [1.0, 1.0]
 
 # training config
@@ -54,8 +53,8 @@ train:
   resume: False
   batch_size: 4
   total_iteration: 10000
-  lr: 0.0001
-  weight_decay: 0.05
+  lr: 0.0003
+  weight_decay: 0.005
   schedualr_milestones: [7000, 14000, 20000, 25000]
   schedular_gamma: 0.3
   grad_max: 20.0

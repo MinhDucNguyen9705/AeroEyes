@@ -69,5 +69,5 @@ def visualization(config, model, dataloader, epoch, device, num_samples=4):
         ax[i, 4].set_title('Query Image 3')
     
     plt.tight_layout()
-    wandb.log({f"Visualization Results": wandb.Image(fig, caption=f"Visualization at epoch {epoch}")}, step=epoch)
+    wandb.log({f"Epoch {epoch}": wandb.Image(fig)})
     plt.close(fig)
