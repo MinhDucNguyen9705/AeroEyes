@@ -294,14 +294,14 @@ class ClipMatcher(nn.Module):
             all_center.append(center)
             all_hw.append(hw)
             all_bbox.append(bbox)
-            all_prob.append(prob.squeeze(-1))
+            all_prob.append(prob)
             all_anchor.append(anchors_xyxy)
 
         center = torch.cat(all_center, dim=2)
         hw     = torch.cat(all_hw, dim=2)
         bbox   = torch.cat(all_bbox, dim=2)
         prob   = torch.cat(all_prob, dim=2)
-        anchor = torch.cat(all_anchor, dim=2)
+        anchors_xyxy = torch.cat(all_anchor, dim=2)
         
         result = {
             'center': center,           # [b,t,N,2]
@@ -310,6 +310,11 @@ class ClipMatcher(nn.Module):
             'prob': prob.squeeze(-1),   # [b,t,N]
             'anchor': anchors_xyxy      # [1,1,N,4]
         }
+        print('center', center.shape)
+        print('hw', hw.shape)
+        print('bbox', bbox.shape)
+        print('prob', prob.shape)
+        print('anchors_xyxy', anchors_xyxy.shape)
         return result
     
 

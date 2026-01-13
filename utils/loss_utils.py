@@ -106,13 +106,13 @@ def get_losses_with_anchor(config, preds, gts):
         'loss_bbox_hw': loss_hw,
         'loss_bbox_giou': loss_giou,
         'loss_prob': loss_prob,
-        'aux_loss': preds['aux_loss'],
+        # 'aux_loss': preds['aux_loss'],
         # weights
         'weight_bbox_center': config.loss.weight_bbox_center,
         'weight_bbox_hw': config.loss.weight_bbox_hw,
         'weight_bbox_giou': config.loss.weight_bbox_giou,
         'weight_prob': config.loss.weight_prob,
-        'weight_aux_loss': config.loss.weight_aux_loss,
+        # 'weight_aux_loss': config.loss.weight_aux_loss,
         # information
         'iou': iou.detach(),
         'giou': giou.detach()
