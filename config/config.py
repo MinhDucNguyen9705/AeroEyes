@@ -34,7 +34,7 @@ config.dataset.frame_interval = 5
 config.dataset.query_padding = False
 config.dataset.query_square = False
 config.dataset.padding_value = 'zero'
-config.dataset.train_dir = '/home/admin/aeroeyes/observing/train/samples'
+config.dataset.train_dir = '/home/kienpt/train/samples'
 config.dataset.test_dir = '/home/admin/aeroeyes/public_test/public_test/samples'
 config.dataset.train_ego_dir = '/home/admin/train-ego4d/train_ego4d/samples'
 
