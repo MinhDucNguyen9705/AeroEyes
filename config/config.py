@@ -44,13 +44,13 @@ config.model.backbone_name = 'dinov2'
 config.model.backbone_type = 'vits14'
 config.model.bakcbone_use_mae_weight = False
 config.model.fix_backbone = True
-config.model.num_transformer = 2
+config.model.num_transformer = 3
 config.model.type_transformer = 'global'
-config.model.resolution_transformer = 1
-config.model.resolution_anchor_feat = 1
+config.model.resolution_transformer = 8
+config.model.resolution_anchor_feat = 16
 config.model.pe_transformer = 'sinusoidal'
 config.model.window_transformer = 10
-config.model.positive_threshold = 0.3
+config.model.positive_threshold = 0.2
 config.model.positive_topk = 5
 config.model.cpt_path = ''
 

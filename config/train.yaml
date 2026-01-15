@@ -34,8 +34,8 @@ model:
   type_transformer: 'global'
   resolution_transformer: 8
   resolution_anchor_feat: 16
-  pe_transformer: 'zero' #'zero'
-  window_transformer: 5
+  pe_transformer: 'sinusoidal' #'zero'
+  window_transformer: 10
   positive_threshold: 0.2
   positive_topk: 5
 

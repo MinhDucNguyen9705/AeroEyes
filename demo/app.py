@@ -24,7 +24,8 @@ from metrics.utils import postprocess_results
 
 # ============== Configuration ==============
 SCRIPT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CHECKPOINT_PATH = os.environ.get("CHECKPOINT_PATH", os.path.join(SCRIPT_DIR, "cpt_best_iou.pth.tar"))
+# CHECKPOINT_PATH = os.environ.get("CHECKPOINT_PATH", os.path.join(SCRIPT_DIR, "cpt_best_iou.pth.tar"))
+CHECKPOINT_PATH = './cpt_best_iou.pth.tar'
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 NUM_FRAMES = config.dataset.clip_num_frames  # 30
 FRAME_INTERVAL = config.dataset.frame_interval  # 5
@@ -43,11 +44,11 @@ def load_model():
     model = ClipMatcher(config).to(DEVICE)
     
     if os.path.exists(CHECKPOINT_PATH):
-        checkpoint = torch.load(CHECKPOINT_PATH, map_location=DEVICE)
-        if "model" in checkpoint:
-            model.load_state_dict(checkpoint["model"], strict=False)
+        checkpoint = torch.load(CHECKPOINT_PATH, map_location=DEVICE, weights_only=False)
+        if "state_dict" in checkpoint:
+            model.load_state_dict(checkpoint["state_dict"], strict=True)
         else:
-            model.load_state_dict(checkpoint, strict=False)
+            model.load_state_dict(checkpoint, strict=True)
         print(f"Loaded checkpoint from {CHECKPOINT_PATH}")
     else:
         print(f"Warning: Checkpoint not found at {CHECKPOINT_PATH}")
@@ -252,7 +253,6 @@ def run_inference(video_path, query_images, threshold=0.5, progress=gr.Progress(
     # Normalize query images
     query_tensor = normalize_clip(query_tensor)
     query_tensor = query_tensor.unsqueeze(0).to(DEVICE)  # [1, N, C, H, W]
-    
     all_detections = {}
     
     # Process video in clips
@@ -265,8 +265,8 @@ def run_inference(video_path, query_images, threshold=0.5, progress=gr.Progress(
         clip, frame_indices = load_video_clip(video_path, start_frame, NUM_FRAMES)
         clip_processed, orig_h, orig_w = process_clip(clip)
         clip_normalized = normalize_clip(clip_processed)
-        clip_batch = clip_normalized.unsqueeze(0).to(DEVICE)  # [1, T, C, H, W]
         
+        clip_batch = clip_normalized.unsqueeze(0).to(DEVICE)  # [1, T, C, H, W]
         # Run model
         output = model(clip_batch, query_tensor, training=False, fix_backbone=True)
         results = postprocess_results(output, threshold=threshold)
@@ -489,6 +489,8 @@ def create_demo():
 
 # ============== Main ==============
 if __name__ == "__main__":
+    import os
+    os.environ['CUDA_VISIBLE_DEVICES'] = '2'
     print("Starting AeroEyes Gradio Demo...")
     print(f"Device: {DEVICE}")
     print(f"Checkpoint: {CHECKPOINT_PATH}")
